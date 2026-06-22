@@ -41,13 +41,23 @@ Set every var for the **Production** environment. Do NOT commit `.env.local` (al
 - [ ] Plan limits: Pro = 7,500 req/day, 300 req/min. Caching is already in place
       (lineups 60s, fixtures/events short TTL, player season 24h, prices 6h). Watch usage on matchdays.
 
-## 5. Scoring cron
-- [ ] `vercel.json` schedules `/api/scoring/cron` every minute (`* * * * *`).
-      **Minutely crons require the Vercel Pro plan.** On Hobby, Vercel allows only daily crons -
-      either upgrade, or run an external every-minute pinger (cron-job.org / GitHub Action) hitting
-      `/api/scoring/cron` with `Authorization: Bearer $SCORING_SECRET`.
-- [ ] Note: rooms also self-heal via `/api/room/[roomId]/sync` when a participant has the page open,
-      so open rooms still progress even without the cron - but the cron is needed for unopened rooms.
+## 5. Scoring cron (GitHub Actions - no Vercel Pro)
+Scoring is driven by `.github/workflows/scoring-cron.yml`, which pings
+`GET /api/scoring/cron` (auth `Authorization: Bearer $SCORING_SECRET`). `vercel.json`
+was removed because Hobby caps crons at once/day.
+- [ ] **[BLOCKER]** Make the repo **public** - GitHub Actions minutes are unlimited for public
+      repos. This pinger runs ~24/7 and would exceed the 2,000 free min/month on a private repo.
+      (No secrets are committed, so public is safe.)
+- [ ] **[BLOCKER]** Add repo secrets (Settings - Secrets and variables - Actions):
+      `SCORING_BASE_URL` = your prod URL (no trailing slash), `SCORING_SECRET` = same value as Vercel.
+- [ ] After deploy, open the **Actions** tab and run "Scoring cron" once via **Run workflow** to verify
+      it returns HTTP 200.
+- [ ] Cadence: GitHub's minimum schedule is every 5 min (best-effort); each run loops to ping ~once a
+      minute across the window. Note GitHub disables scheduled workflows after 60 days of repo inactivity.
+- [ ] Open rooms also self-heal via `/api/room/[roomId]/sync` (every ~30s while the page is open), so
+      the Action mainly matters for rooms nobody currently has open.
+- [ ] Alternative if you keep the repo private: a free external pinger (cron-job.org) hitting the same
+      endpoint gives true 1-min cadence without using Action minutes.
 
 ## 6. Assets & metadata
 - [x] Social card is generated dynamically by `app/opengraph-image.tsx` (1200x630, branded). No

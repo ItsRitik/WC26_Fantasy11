@@ -1,0 +1,47 @@
+name: Scoring cron
+
+# Drives live fantasy scoring without Vercel Pro by pinging /api/scoring/cron.
+#
+# GitHub's minimum schedule is every 5 minutes (and runs are best-effort, so
+# they can be delayed under load). To approximate a 1-minute cadence during
+# live matches, each run loops and pings ~once a minute across its 5-min window.
+#
+# Minutes cost: this runs ~24/7 and will exceed the 2,000 free min/month on a
+# PRIVATE repo. Make the repo PUBLIC for unlimited free Actions minutes.
+#
+# Required repo secrets (Settings - Secrets and variables - Actions):
+#   SCORING_BASE_URL  e.g. https://your-app.vercel.app   (no trailing slash)
+#   SCORING_SECRET    the same value set in Vercel env
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch: {}   # lets you trigger a run manually from the Actions tab
+
+concurrency:
+  group: scoring-cron
+  cancel-in-progress: true
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Ping scoring endpoint ~once a minute
+        env:
+          BASE_URL: ${{ secrets.SCORING_BASE_URL }}
+          SECRET:   ${{ secrets.SCORING_SECRET }}
+        run: |
+          if [ -z "$BASE_URL" ] || [ -z "$SECRET" ]; then
+            echo "::error::Set SCORING_BASE_URL and SCORING_SECRET repo secrets."
+            exit 1
+          fi
+          for i in 1 2 3 4 5; do
+            echo "Ping $i/5 at $(date -u '+%H:%M:%S') UTC"
+            code=$(curl -s -o /dev/null -w '%{http_code}' \
+              --max-time 30 \
+              -X GET "$BASE_URL/api/scoring/cron" \
+              -H "Authorization: Bearer $SECRET")
+            echo "  -> HTTP $code"
+            if [ "$i" -lt 5 ]; then sleep 55; fi
+          done
