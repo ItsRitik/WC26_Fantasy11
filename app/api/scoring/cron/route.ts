@@ -42,6 +42,37 @@ export async function GET(request: NextRequest) {
 
   try {
     const db = adminClient()
+    const nowIso = new Date().toISOString()
+
+    // Step 0a: delete abandoned rooms - kickoff has passed but nobody ever
+    // entered a team (zero members). An empty contest can't be played or won,
+    // so it's removed rather than locked/scored.
+    let roomsDeleted = 0
+    const { data: started } = await db
+      .from('fantasy_rooms')
+      .select('id')
+      .lte('kickoff_at', nowIso)
+      .neq('status', 'finished')
+
+    if (started && started.length > 0) {
+      const startedIds = started.map(r => r.id)
+      const { data: mems } = await db
+        .from('fantasy_room_members')
+        .select('room_id')
+        .in('room_id', startedIds)
+      const hasMembers = new Set((mems ?? []).map(m => m.room_id))
+      const emptyIds = startedIds.filter(id => !hasMembers.has(id))
+
+      if (emptyIds.length > 0) {
+        // Clear any stray child rows first (an empty room shouldn't have picks,
+        // but a live_state row may have been written), then delete the rooms.
+        await db.from('fantasy_picks').delete().in('room_id', emptyIds)
+        await db.from('fantasy_live_state').delete().in('room_id', emptyIds)
+        const { error: delErr } = await db.from('fantasy_rooms').delete().in('id', emptyIds)
+        if (delErr) console.error('[cron] empty-room cleanup failed:', delErr.message)
+        else roomsDeleted = emptyIds.length
+      }
+    }
 
     // Step 0: lock rooms whose kickoff has passed - without this, real rooms
     // stay 'waiting' forever and the scorer never picks them up.
@@ -61,7 +92,7 @@ export async function GET(request: NextRequest) {
 
     if (error) throw error
     if (!rooms || rooms.length === 0) {
-      return NextResponse.json({ ok: true, triggered: 0, message: 'No active rooms' })
+      return NextResponse.json({ ok: true, triggered: 0, roomsDeleted, message: 'No active rooms' })
     }
 
     // De-duplicate: one API call per unique match, regardless of how many rooms share it
@@ -92,6 +123,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       ok:           true,
+      roomsDeleted,
       activeRooms:  rooms.length,
       matchesScored: uniqueMatchIds.length,
       succeeded,
