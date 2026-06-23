@@ -163,35 +163,29 @@ export default function ScoringPage() {
           Back to Fantasy
         </Link>
 
-        <div className="relative overflow-hidden rounded-2xl pitch-bg-dark text-white border border-white/10 shadow-sm">
-          <div className="pitch-sweep" />
-          <div className="relative px-5 pt-5 pb-5">
-            <div className="flex items-start gap-3 mb-4">
-              <div className="text-4xl leading-none float-y">🏆</div>
-              <div>
-                <h1 className="text-xl font-black tracking-tight">Points System</h1>
-                <p className="text-sm text-white/70 mt-1 leading-relaxed">
-                  Every goal, tackle, and save earns or costs your team points,
-                  updated live every few minutes during a match.
-                </p>
-              </div>
-            </div>
-
-            {/* Headline stat pills */}
-            <div className="grid grid-cols-4 gap-2">
-              {[
-                { label: 'DEF/GK goal', value: '+60' },
-                { label: 'Penalty save', value: '+50' },
-                { label: 'Clean sheet', value: '+20' },
-                { label: 'Missed pen', value: '−20' },
-              ].map(s => (
-                <div key={s.label} className="bg-white/10 rounded-xl px-2 py-2.5 text-center">
-                  <div className="text-base font-black">{s.value}</div>
-                  <div className="text-[9px] text-white/60 mt-0.5 leading-tight">{s.label}</div>
-                </div>
-              ))}
-            </div>
+        <div className="flex items-start gap-3 mb-4">
+          <div className="text-4xl leading-none">🏆</div>
+          <div>
+            <h1 className="text-xl font-black text-gray-900 dark:text-gray-100 tracking-tight">Points System</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
+              Every goal, tackle, and save earns or costs your team points, updated live every few minutes during a match.
+            </p>
           </div>
+        </div>
+
+        {/* Headline stat pills */}
+        <div className="grid grid-cols-4 gap-2">
+          {[
+            { label: 'DEF/GK goal', value: '+60' },
+            { label: 'Penalty save', value: '+50' },
+            { label: 'Clean sheet', value: '+20' },
+            { label: 'Missed pen', value: '−20' },
+          ].map(s => (
+            <div key={s.label} className="bg-white dark:bg-gray-900 border border-black/[0.07] dark:border-white/[0.07] rounded-xl px-2 py-2.5 text-center">
+              <div className={`text-base font-black ${ptColor(s.value)}`}>{s.value}</div>
+              <div className="text-[9px] text-gray-400 mt-0.5 leading-tight">{s.label}</div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -373,21 +367,27 @@ export default function ScoringPage() {
         {/* ── How a match works timeline ───────────────────────────────────── */}
         <section>
           <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">How a match works</h2>
-          <div className="relative pl-6">
-            <div className="absolute left-[7px] top-1 bottom-8 w-px bg-gradient-to-b from-pulse-400 to-transparent" />
+          <div>
             {[
-              { icon: '🔗', step: '1', title: 'Create a contest',             body: 'Pick a match, then share your invite link or room code with up to 100 managers.' },
-              { icon: '📋', step: '2', title: 'Lineups drop (~1 hr before)',  body: 'Player selection opens once the official starting XI is announced. Pick 11 players, set your Captain and Vice-Captain.' },
-              { icon: '🔒', step: '3', title: 'Picks lock at kick-off',       body: 'No changes once the whistle blows. Your team is set.' },
-              { icon: '📡', step: '4', title: 'Live scoring every few mins',  body: 'Watch the points feed update as goals, cards, saves, and tackles roll in.' },
-              { icon: '🏆', step: '5', title: 'Result at full time',          body: 'Final points are tallied after 90+ minutes. The highest total tops the leaderboard and wins the contest.' },
-            ].map((s, i) => (
-              <div key={i} className="relative pb-6 last:pb-0">
-                <div className="absolute -left-[17px] top-0 w-5 h-5 rounded-full bg-white dark:bg-gray-900 border-2 border-pulse-400 flex items-center justify-center text-[11px] font-black text-pulse-600">
-                  {s.step}
+              { step: '1', title: 'Create a contest',             body: 'Pick a match, then share your invite link or room code with up to 100 managers.' },
+              { step: '2', title: 'Lineups drop (~1 hr before)',  body: 'Player selection opens once the official starting XI is announced. Pick 11 players, set your Captain and Vice-Captain.' },
+              { step: '3', title: 'Picks lock at kick-off',       body: 'No changes once the whistle blows. Your team is set.' },
+              { step: '4', title: 'Live scoring every few mins',  body: 'Watch the points feed update as goals, cards, saves, and tackles roll in.' },
+              { step: '5', title: 'Result at full time',          body: 'Final points are tallied after 90+ minutes. The highest total tops the leaderboard and wins the contest.' },
+            ].map((s, i, arr) => (
+              <div key={i} className="flex gap-3">
+                {/* number + connector */}
+                <div className="flex flex-col items-center flex-shrink-0">
+                  <div className="w-6 h-6 rounded-full bg-white dark:bg-gray-900 border-2 border-pulse-400 flex items-center justify-center text-[11px] font-black text-pulse-600">
+                    {s.step}
+                  </div>
+                  {i < arr.length - 1 && <div className="w-px flex-1 bg-gradient-to-b from-pulse-300 to-pulse-100 dark:from-pulse-700 dark:to-transparent my-1" />}
                 </div>
-                <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{s.title}</p>
-                <p className="text-[11px] text-gray-400 mt-0.5 leading-relaxed">{s.body}</p>
+                {/* content */}
+                <div className={i < arr.length - 1 ? 'pb-5' : ''}>
+                  <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{s.title}</p>
+                  <p className="text-[11px] text-gray-400 mt-0.5 leading-relaxed">{s.body}</p>
+                </div>
               </div>
             ))}
           </div>
