@@ -1,6 +1,6 @@
--- WorldPulse 2026 — Drop everything and start fresh
+-- WorldPulse 2026 - Drop everything and start fresh
 -- Run this FIRST in Supabase SQL Editor before running schema.sql
--- ⚠ This is destructive — all data will be lost.
+-- ⚠ This is destructive - all data will be lost.
 -- Triggers are dropped automatically via CASCADE when their tables are dropped.
 
 -- Drop functions (cascade removes dependent triggers)
@@ -8,7 +8,7 @@ drop function if exists touch_updated_at()         cascade;
 drop function if exists validate_picks(uuid, uuid)  cascade;
 drop function if exists handle_new_user()           cascade;
 
--- Drop tables — dependents first, CASCADE handles FKs
+-- Drop tables - dependents first, CASCADE handles FKs
 drop table if exists fantasy_picks          cascade;
 drop table if exists fantasy_live_state     cascade;
 drop table if exists fantasy_rooms          cascade;

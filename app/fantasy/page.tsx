@@ -106,13 +106,17 @@ function MyRoomCard({
     <Link
       href={`/fantasy/room/${room.id}`}
       className={clsx(
-        'block bg-white dark:bg-gray-900 rounded-2xl border transition-all hover:shadow-md',
+        'card-hover relative overflow-hidden block bg-white dark:bg-gray-900 rounded-2xl border',
         room.status === 'live'
           ? 'border-red-200 dark:border-red-800/50 shadow-sm'
           : 'border-black/[0.07] dark:border-white/[0.07]'
       )}
     >
-      <div className="p-4">
+      {/* status accent bar */}
+      <div className={clsx('absolute left-0 top-0 bottom-0 w-1',
+        room.status === 'live' ? 'bg-red-500' : room.status === 'waiting' ? 'bg-amber-400'
+        : room.status === 'locked' ? 'bg-orange-400' : 'bg-gray-300 dark:bg-gray-600')} />
+      <div className="p-4 pl-5">
         {/* Header row */}
         <div className="flex items-start justify-between gap-2 mb-3">
           <div className="flex-1 min-w-0">
@@ -281,9 +285,11 @@ function RealFixtureCard({
 
   return (
     <div className={clsx(
-      'bg-white dark:bg-gray-900 rounded-2xl border transition-shadow',
+      'card-hover bg-white dark:bg-gray-900 rounded-2xl border overflow-hidden',
       isLive ? 'border-red-200 dark:border-red-800/60 shadow-sm' : 'border-black/[0.07] dark:border-white/[0.07]'
     )}>
+      {/* football accent strip */}
+      <div className={clsx('h-1 w-full', isLive ? 'bg-red-500' : isFriendly ? 'bg-blue-400' : 'bg-gradient-to-r from-pulse-500 to-pulse-300')} />
       <div className="p-4">
         {/* Badge row */}
         <div className="flex items-center justify-between mb-3">
@@ -437,18 +443,26 @@ function AuthenticatedLobby({ userId }: { userId: string }) {
 
   return (
     <div className="max-w-lg mx-auto px-4 py-6 pb-24">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-5">
-        <div>
-          <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Fantasy contests</h1>
-          <p className="text-xs text-gray-400 mt-0.5">
-            {displayName ? <>Manager <span className="font-semibold text-pulse-600 dark:text-pulse-400">{displayName}</span></> : 'Pick · Challenge · Score live'}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
+      {/* Themed header banner */}
+      <div className="relative overflow-hidden rounded-2xl pitch-bg-dark border border-white/10 shadow-sm mb-5">
+        <div className="pitch-sweep" />
+        <div className="relative flex items-center justify-between px-4 py-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <svg width="30" height="30" viewBox="0 0 24 24" className="ball-spin flex-shrink-0" aria-hidden>
+              <circle cx="12" cy="12" r="11" fill="#fff" />
+              <path d="M12 6l3.2 2.3-1.2 3.8h-4L8.8 8.3z" fill="#0b3d24" />
+              <path d="M12 6V3M15.2 8.3l2-1.2M14 11.5l2.4.8M10 11.5l-2.4.8M8.8 8.3l-2-1.2" stroke="#0b3d24" strokeWidth="1.1" strokeLinecap="round" fill="none" />
+            </svg>
+            <div className="min-w-0">
+              <h1 className="text-base font-black text-white tracking-tight">Fantasy contests</h1>
+              <p className="text-[11px] text-white/70 truncate">
+                {displayName ? <>Manager <span className="font-semibold text-pulse-200">{displayName}</span></> : 'Pick · Challenge · Score live'}
+              </p>
+            </div>
+          </div>
           <Link
             href="/fantasy/scoring"
-            className="flex items-center gap-1 text-[11px] text-gray-500 dark:text-gray-400 hover:text-pulse-600 dark:hover:text-pulse-400 transition-colors font-medium"
+            className="flex items-center gap-1.5 text-[11px] font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/20 px-3 py-1.5 rounded-full transition-colors flex-shrink-0 backdrop-blur-sm"
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="10"/><path d="M12 8h.01M12 12v4"/>

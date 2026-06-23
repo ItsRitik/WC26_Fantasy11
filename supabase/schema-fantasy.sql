@@ -1,4 +1,4 @@
--- WorldPulse 2026 — Match-Wise 1v1 Fantasy Schema
+-- WorldPulse 2026 - Match-Wise 1v1 Fantasy Schema
 -- ─────────────────────────────────────────────────────────────────────────────
 -- REGENERATED 2026-06-11 to match the LIVE database (verified via REST).
 -- The previous version of this file had drifted: it used host_user_id /
@@ -17,7 +17,7 @@ create type position_type as enum ('GK','DEF','MID','FWD');
 -- ── fantasy_rooms ─────────────────────────────────────────────────────────────
 -- One room = one 1v1 contest for a specific match.
 -- match_id: API-Football fixture id (numeric string) or TEST_xxx in test mode.
--- Joinable via share link (/fantasy/room/<uuid> — UUID is unguessable).
+-- Joinable via share link (/fantasy/room/<uuid> - UUID is unguessable).
 create table fantasy_rooms (
   id              uuid primary key default gen_random_uuid(),
   match_id        text        not null,
@@ -62,7 +62,7 @@ create policy "rooms_update_participants"
 
 -- ── fantasy_picks ─────────────────────────────────────────────────────────────
 -- Each user's 11-player selection for a room. Player data is SNAPSHOTTED inline
--- (no players table) — the scoring engine joins on api_player_id.
+-- (no players table) - the scoring engine joins on api_player_id.
 create table fantasy_picks (
   id             bigserial primary key,
   room_id        uuid          not null references fantasy_rooms(id) on delete cascade,
@@ -138,7 +138,7 @@ create policy "picks_delete_own"
 
 -- ── fantasy_live_state ────────────────────────────────────────────────────────
 -- One row per room, upserted by the scoring engine every cron tick.
--- Supabase Realtime on this table drives the live score widget —
+-- Supabase Realtime on this table drives the live score widget -
 -- remember to add it to the supabase_realtime publication.
 create table fantasy_live_state (
   room_id         uuid primary key references fantasy_rooms(id) on delete cascade,
@@ -158,7 +158,7 @@ alter table fantasy_live_state enable row level security;
 create policy "live_read_all"
   on fantasy_live_state for select
   using (true);
--- Only the service-role scoring engine writes — no client write policy.
+-- Only the service-role scoring engine writes - no client write policy.
 
 -- ── match_player_points ───────────────────────────────────────────────────────
 -- Per-player point breakdown per match, upserted every scoring tick.

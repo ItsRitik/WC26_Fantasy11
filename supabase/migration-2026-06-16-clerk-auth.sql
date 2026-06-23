@@ -59,7 +59,7 @@ begin
   end if;
 end $$;
 
--- ── 5. Recreate RLS — public read, writes via service role only ──────────────
+-- ── 5. Recreate RLS - public read, writes via service role only ──────────────
 do $$
 declare tbl text;
 begin

@@ -1,7 +1,7 @@
 -- Migration: create match_player_points (2026-06-11)
 -- ════════════════════════════════════════════════════
 -- The live scoring engine (/api/scoring/match/[matchId]) upserts one row per
--- player per tick into this table, but it was never created in the live DB —
+-- player per tick into this table, but it was never created in the live DB -
 -- every tick currently logs "Could not find the table 'public.match_player_points'".
 --
 -- Run this in the Supabase SQL Editor (Dashboard → SQL → New query).

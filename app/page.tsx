@@ -148,10 +148,11 @@ function FeaturedMatch({ match }: { match: AFWCFixture }) {
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </Link>
           <Link
-            href="/fantasy"
+            href={!isLive && !isDone ? `/fantasy/room/create?match=${match.fixture.id}` : '/fantasy'}
             className="h-10 px-5 flex items-center gap-2 rounded-xl bg-pulse-500/90 text-white text-sm font-semibold hover:bg-pulse-500 transition-colors"
           >
-            Play Fantasy 1v1
+            {!isLive && !isDone ? 'Create a contest' : 'Play Fantasy'}
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </Link>
         </div>
       </div>

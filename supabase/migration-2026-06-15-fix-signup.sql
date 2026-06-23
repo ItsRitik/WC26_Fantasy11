@@ -9,7 +9,7 @@
 -- Fix: schema-qualify the table, pin search_path, and wrap the insert in an
 -- exception block so a profile hiccup can NEVER block authentication.
 --
--- Also widens fav_team_tla so 2–4 char team codes fit.
+-- Also widens fav_team_tla so 2-4 char team codes fit.
 --
 -- Run in Supabase Dashboard → SQL Editor.
 

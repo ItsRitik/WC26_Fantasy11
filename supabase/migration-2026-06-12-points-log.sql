@@ -2,8 +2,8 @@
 -- ═══════════════════════════════════════════
 -- Append-only log of every points assignment, written by the scoring engine
 -- each tick as a DELTA vs what was already logged. This fixes two bugs:
---   1. wrong minutes — entries were re-stamped with the latest tick minute
---   2. accumulating totals — "3 interceptions +12" instead of three +4 entries
+--   1. wrong minutes - entries were re-stamped with the latest tick minute
+--   2. accumulating totals - "3 interceptions +12" instead of three +4 entries
 --
 -- Run in Supabase Dashboard → SQL Editor.
 

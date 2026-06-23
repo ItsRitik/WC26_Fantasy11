@@ -18,4 +18,4 @@ create table if not exists public.player_prices (
 alter table public.player_prices enable row level security;
 drop policy if exists player_prices_read_all on public.player_prices;
 create policy player_prices_read_all on public.player_prices for select using (true);
--- Written only by the server (service role) — no client write policy.
+-- Written only by the server (service role) - no client write policy.

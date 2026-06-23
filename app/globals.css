@@ -109,7 +109,7 @@ body {
 @keyframes ball-spin { to { transform: rotate(360deg); } }
 .ball-spin { animation: ball-spin 3.5s linear infinite; transform-origin: 50% 50%; }
 
-/* Mown-pitch stripes — alternating green bands, the classic stadium look */
+/* Mown-pitch stripes - alternating green bands, the classic stadium look */
 .pitch-bg {
   background-color: #137a3a;
   background-image:
@@ -123,7 +123,7 @@ body {
     radial-gradient(120% 80% at 50% 0%, rgba(255,255,255,0.08), transparent 60%);
 }
 
-/* Slow drifting sheen across the pitch — alive, not distracting */
+/* Slow drifting sheen across the pitch - alive, not distracting */
 @keyframes pitch-sweep {
   0%   { transform: translateX(-60%) skewX(-12deg); opacity: 0; }
   50%  { opacity: 0.5; }
@@ -143,7 +143,7 @@ body {
 }
 .fade-in-up { animation: fade-in-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
-/* Pop — rank badges, medals settling in */
+/* Pop - rank badges, medals settling in */
 @keyframes pop-in {
   0%   { transform: scale(0.4); opacity: 0; }
   70%  { transform: scale(1.12); }

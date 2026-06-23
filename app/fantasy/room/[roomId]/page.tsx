@@ -250,7 +250,7 @@ function Countdown({ to }: { to: string }) {
   )
 }
 
-// Lightweight canvas confetti — fires once when a winner is crowned
+// Lightweight canvas confetti - fires once when a winner is crowned
 function WinnerConfetti() {
   const ref = useRef<HTMLCanvasElement>(null)
   useEffect(() => {
@@ -502,7 +502,7 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
 
       <div className="max-w-lg mx-auto px-4 pt-4 space-y-4">
 
-        {/* Stadium hero — pitch background, crests, live score or countdown */}
+        {/* Stadium hero - pitch background, crests, live score or countdown */}
         <div className="relative overflow-hidden rounded-2xl pitch-bg dark:pitch-bg-dark border border-black/[0.07] dark:border-white/[0.07] shadow-sm">
           <div className="pitch-sweep" />
           {/* halfway line + centre circle */}
@@ -682,14 +682,14 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
               <div className="py-12 text-center px-6">
                 <div className="text-3xl mb-2 float-y">⚽</div>
                 <p className="text-xs text-gray-400">
-                  {isOver ? 'No one entered this contest.' : 'No teams entered yet — be the first to pick your XI.'}
+                  {isOver ? 'No one entered this contest.' : 'No teams entered yet - be the first to pick your XI.'}
                 </p>
               </div>
             )}
           </div>
         </div>
 
-        {/* Winner banner — confetti + shine */}
+        {/* Winner banner - confetti + shine */}
         {isOver && room.winner_id && (
           <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-amber-300 via-amber-400 to-amber-500 p-5 text-center shadow-lg">
             <WinnerConfetti />

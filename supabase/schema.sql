@@ -1,4 +1,4 @@
--- WorldPulse 2026 — Clean Schema
+-- WorldPulse 2026 - Clean Schema
 -- Run AFTER drop-all.sql
 -- Only stores what we actually own: users + fantasy history.
 -- All player/match/lineup data comes from football-data.org API at runtime.
@@ -26,7 +26,7 @@ create type room_status   as enum ('waiting', 'locked', 'live', 'finished', 'can
 create table user_profiles (
   id              uuid primary key references auth.users(id) on delete cascade,
   display_name    text,
-  fav_team_tla    char(3),          -- e.g. 'BRA' — for future push/email alerts
+  fav_team_tla    char(3),          -- e.g. 'BRA' - for future push/email alerts
   phone           text,             -- optional, for future SMS alerts
   avatar_url      text,
   created_at      timestamptz default now(),
@@ -119,7 +119,7 @@ create policy "rooms_update_participants"
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- TABLE 3: fantasy_picks
--- Each user's 11 picks for a room. Player data stored inline —
+-- Each user's 11 picks for a room. Player data stored inline -
 -- no FK to a players table, so history is self-contained.
 -- ─────────────────────────────────────────────────────────────────────────────
 create table fantasy_picks (
@@ -200,7 +200,7 @@ create policy "picks_delete_own"
 -- ─────────────────────────────────────────────────────────────────────────────
 -- TABLE 4: fantasy_live_state
 -- One row per room, updated ~60s by the scoring engine during a live match.
--- Clients subscribe via Supabase Realtime — no polling needed.
+-- Clients subscribe via Supabase Realtime - no polling needed.
 -- ─────────────────────────────────────────────────────────────────────────────
 create table fantasy_live_state (
   room_id         uuid primary key references fantasy_rooms(id) on delete cascade,
@@ -221,7 +221,7 @@ create policy "live_select_all"
   on fantasy_live_state for select
   using (true);
 
--- Only service role (scoring engine) can write — no client insert policy
+-- Only service role (scoring engine) can write - no client insert policy
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- HELPER: validate_picks
@@ -274,14 +274,14 @@ end;
 $$;
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- REALTIME — enable CDC on the two tables clients subscribe to
+-- REALTIME - enable CDC on the two tables clients subscribe to
 -- Works on all Supabase plans including free.
 -- ─────────────────────────────────────────────────────────────────────────────
 -- ─────────────────────────────────────────────────────────────────────────────
 -- match_player_points
 -- ─────────────────────────────────────────────────────────────────────────────
 -- One row per (match, player). Written by the scoring engine every ~10 min.
--- All rooms using the same match fan-out from this table — no duplicate API calls.
+-- All rooms using the same match fan-out from this table - no duplicate API calls.
 -- ─────────────────────────────────────────────────────────────────────────────
 create table if not exists match_player_points (
   match_id        text        not null,  -- API-Football fixture id (as text)
@@ -309,7 +309,7 @@ create table if not exists match_player_points (
 -- Index so fan-out can quickly find all player rows for a match
 create index if not exists idx_mpp_match_id on match_player_points (match_id);
 
--- RLS — service-role writes; authenticated users read
+-- RLS - service-role writes; authenticated users read
 alter table match_player_points enable row level security;
 
 create policy "Public read match_player_points"

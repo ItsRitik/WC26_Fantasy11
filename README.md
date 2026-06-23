@@ -18,9 +18,9 @@
 
 ## 📖 What is this?
 
-**WC26 Fantasy XI** is a Dream11-style fantasy game built around a single real-world football tournament — the **FIFA World Cup 2026**. A host spins up a private contest room for a specific match, shares a join code, and up to **100 managers** each draft an **XI within a 100-credit budget**. Once the match kicks off, the room locks and **every touch on the pitch turns into points in real time** — goals, assists, tackles, clean sheets, cards — streamed to every manager's screen without a single page refresh.
+**WC26 Fantasy XI** is a Dream11-style fantasy game built around a single real-world football tournament - the **FIFA World Cup 2026**. A host spins up a private contest room for a specific match, shares a join code, and up to **100 managers** each draft an **XI within a 100-credit budget**. Once the match kicks off, the room locks and **every touch on the pitch turns into points in real time** - goals, assists, tackles, clean sheets, cards - streamed to every manager's screen without a single page refresh.
 
-The hard part of a fantasy app isn't the UI — it's **getting live football data to score fairly and fan it out to many viewers efficiently**. That's where the architecture below comes in.
+The hard part of a fantasy app isn't the UI - it's **getting live football data to score fairly and fan it out to many viewers efficiently**. That's where the architecture below comes in.
 
 ---
 
@@ -30,11 +30,11 @@ The hard part of a fantasy app isn't the UI — it's **getting live football dat
 |---|---|
 | 🏟️ **Match-scoped contests** | Each room is tied to one World Cup fixture. Create, share a code, fill up to 100 managers. |
 | 👕 **Budget squad builder** | Draft 11 players under a 100-credit cap with a captain (×2) and vice-captain (×1.5). |
-| 💸 **Form-based pricing** | Player credits are computed from real club-season **and** World Cup form — not flat by position. |
+| 💸 **Form-based pricing** | Player credits are computed from real club-season **and** World Cup form - not flat by position. |
 | 📡 **Live scoring** | Points update minute-by-minute during a match via a pub/sub fan-out + Supabase Realtime. |
 | 🏆 **Live leaderboard** | Rooms rank managers in real time; the winner is settled at full-time. |
 | 📰 **WC news + fixtures** | Aggregated World Cup news feed, fixtures, standings, Golden Boot race. |
-| 🔐 **Frictionless auth** | Email-code sign-in via Clerk — no passwords. |
+| 🔐 **Frictionless auth** | Email-code sign-in via Clerk - no passwords. |
 
 ---
 
@@ -64,7 +64,7 @@ flowchart TD
         RT["Supabase Realtime subscription<br/>(useLiveRoom)"]
     end
 
-    subgraph Vercel["▲ Vercel — Next.js App"]
+    subgraph Vercel["▲ Vercel - Next.js App"]
         Pages["App Router pages"]
         API["Route handlers (/api/*)"]
         Engine["Pure scoring engine<br/>lib/scoring/engine.ts"]
@@ -98,7 +98,7 @@ flowchart TD
 
 ## 📡 The Pub/Sub Live-Scoring Engine *(the heart of the app)*
 
-A naive design would have every browser poll API-Football directly — that explodes the API rate limit (300 req/min) and double-counts work. Instead, scoring uses a **publish/subscribe fan-out** so that **one API fetch per match** updates **unlimited viewers**.
+A naive design would have every browser poll API-Football directly - that explodes the API rate limit (300 req/min) and double-counts work. Instead, scoring uses a **publish/subscribe fan-out** so that **one API fetch per match** updates **unlimited viewers**.
 
 ### The publishers and subscribers
 
@@ -118,7 +118,7 @@ sequenceDiagram
     Cron->>DB: find rooms in 'locked' / 'live'
     Note over Cron: de-duplicate → unique match IDs<br/>(one call per match, NOT per room)
     Cron->>Match: POST /api/scoring/match/123
-    Match->>AF: fetch events + player stats (1–2 calls)
+    Match->>AF: fetch events + player stats (1-2 calls)
     Match->>Engine: scoreMatch(events, stats, status)
     Engine-->>Match: Map<playerId, points>
     Match->>DB: upsert player points, per-room<br/>leaderboard & live_state
@@ -131,20 +131,20 @@ sequenceDiagram
 ### Why this is efficient
 
 - 🎯 **One fetch per match, not per room.** The cron collects every active room, reduces them to **unique match IDs**, and calls the scorer **once** per match. 100 rooms playing the same game = **1** API-Football call.
-- 📤 **Postgres *is* the message bus.** The scorer only ever **writes** to the database. It never talks to browsers. Supabase Realtime watches those tables (`postgres_changes`) and **publishes** every change to subscribed clients — classic pub/sub, with the DB as the broker.
+- 📤 **Postgres *is* the message bus.** The scorer only ever **writes** to the database. It never talks to browsers. Supabase Realtime watches those tables (`postgres_changes`) and **publishes** every change to subscribed clients - classic pub/sub, with the DB as the broker.
 - 📥 **Browsers just subscribe.** [`lib/hooks/useLiveRoom.ts`](lib/hooks/useLiveRoom.ts) opens a Realtime channel per room and receives pushes. No polling of the football API from the client, ever.
-- 🩹 **Self-healing rooms.** When a manager has a room open, [`/api/room/[roomId]/sync`](app/api/room/[roomId]/sync/route.ts) also nudges scoring every ~30s — so open rooms progress even between cron ticks. The cron is the safety net for rooms nobody is watching.
+- 🩹 **Self-healing rooms.** When a manager has a room open, [`/api/room/[roomId]/sync`](app/api/room/[roomId]/sync/route.ts) also nudges scoring every ~30s - so open rooms progress even between cron ticks. The cron is the safety net for rooms nobody is watching.
 
 ### Scoring correctness: live vs. full-time
 
-The engine ([`lib/scoring/engine.ts`](lib/scoring/engine.ts)) is a **pure function** — no DB, no network — which makes it trivially testable. It deliberately splits scoring into two phases:
+The engine ([`lib/scoring/engine.ts`](lib/scoring/engine.ts)) is a **pure function** - no DB, no network - which makes it trivially testable. It deliberately splits scoring into two phases:
 
 | Phase | What's scored | Why |
 |---|---|---|
-| **Live (during play)** | Timed match events: goals, assists, cards, own goals, missed penalties, appearances — each at its **true minute** | These have a real timestamp from API-Football and never change once they happen |
-| **Full-time only (FT/AET/PEN)** | Cumulative stats: tackles, interceptions, passes, chances created, saves, **clean sheets**, goals conceded | These are running aggregates with no event time — awarding them live would make a clean sheet appear at 30' and vanish at 70', and make the points-log "minute" drift to the live clock every tick |
+| **Live (during play)** | Timed match events: goals, assists, cards, own goals, missed penalties, appearances - each at its **true minute** | These have a real timestamp from API-Football and never change once they happen |
+| **Full-time only (FT/AET/PEN)** | Cumulative stats: tackles, interceptions, passes, chances created, saves, **clean sheets**, goals conceded | These are running aggregates with no event time - awarding them live would make a clean sheet appear at 30' and vanish at 70', and make the points-log "minute" drift to the live clock every tick |
 
-The result: the leaderboard moves in real time on the things that *are* final (goals win matches), while bonus/defensive points are settled cleanly when the whistle blows — exactly like real fantasy platforms.
+The result: the leaderboard moves in real time on the things that *are* final (goals win matches), while bonus/defensive points are settled cleanly when the whistle blows - exactly like real fantasy platforms.
 
 <details>
 <summary><b>📋 Full points table</b></summary>
@@ -185,18 +185,18 @@ stateDiagram-v2
     deleted --> [*]
 ```
 
-- **Entry = a submitted team.** A manager only joins a room's leaderboard when they save a full, valid 11-player XI — so abandoned/empty joiners can never appear as "0-point winners."
-- **Empty-room cleanup.** If a room reaches kickoff with no entries, the cron deletes it — a contest nobody joined can't be played.
+- **Entry = a submitted team.** A manager only joins a room's leaderboard when they save a full, valid 11-player XI - so abandoned/empty joiners can never appear as "0-point winners."
+- **Empty-room cleanup.** If a room reaches kickoff with no entries, the cron deletes it - a contest nobody joined can't be played.
 - **Host controls.** The host can remove a manager before kickoff via [`/api/room/[roomId]/members`](app/api/room/[roomId]/members/route.ts).
 
 ---
 
 ## 💸 Player Pricing
 
-Credits are **earned, not assigned by position**. [`lib/pricing.ts`](lib/pricing.ts) computes a Dream11-style value (≈7.5–12.5) by blending:
+Credits are **earned, not assigned by position**. [`lib/pricing.ts`](lib/pricing.ts) computes a Dream11-style value (≈7.5-12.5) by blending:
 
-1. **Club-season form** — minutes-weighted rating, goal involvement per 90, output volume, starter bonus.
-2. **World Cup form overlay** — recent tournament rating delta, goals and assists in WC 2026.
+1. **Club-season form** - minutes-weighted rating, goal involvement per 90, output volume, starter bonus.
+2. **World Cup form overlay** - recent tournament rating delta, goals and assists in WC 2026.
 
 Prices are cached in a `player_prices` table (refreshed every few hours) so they move between matchdays without hammering the API. ([`lib/api/playerPrices.ts`](lib/api/playerPrices.ts) resolves a whole squad with bounded concurrency.)
 
@@ -251,8 +251,8 @@ supabase/                        # schema + migrations + ops scripts
 | `/api/room/[roomId]/picks` | POST | Save an XI = **enter the room** |
 | `/api/room/[roomId]/members` | DELETE | Host removes a manager (pre-kickoff) |
 | `/api/room/[roomId]/sync` | POST | Self-heal: lock + nudge scoring |
-| `/api/scoring/cron` | GET | **Dispatcher** — fan out to active matches |
-| `/api/scoring/match/[id]` | POST | **Worker** — fetch, score, write, fan out |
+| `/api/scoring/cron` | GET | **Dispatcher** - fan out to active matches |
+| `/api/scoring/match/[id]` | POST | **Worker** - fetch, score, write, fan out |
 
 </details>
 
@@ -315,9 +315,9 @@ npm run dev          # http://localhost:3000
 
 1. **Import the repo into Vercel** → add all environment variables (Production scope) → deploy.
 2. **Set `NEXT_PUBLIC_BASE_URL`** to the deployed URL, then redeploy.
-3. **Drive scoring with GitHub Actions** (no Vercel Pro needed) — [`.github/workflows/scoring-cron.yml`](.github/workflows/scoring-cron.yml) pings the scoring cron every cycle. Add repo secrets:
-   - `SCORING_BASE_URL` — your prod URL (no trailing slash)
-   - `SCORING_SECRET` — same value as in Vercel
+3. **Drive scoring with GitHub Actions** (no Vercel Pro needed) - [`.github/workflows/scoring-cron.yml`](.github/workflows/scoring-cron.yml) pings the scoring cron every cycle. Add repo secrets:
+   - `SCORING_BASE_URL` - your prod URL (no trailing slash)
+   - `SCORING_SECRET` - same value as in Vercel
 
    > ℹ️ GitHub's minimum schedule is 5 min; the workflow loops internally to ping roughly once a minute. Actions minutes are **free & unlimited on public repos**.
 
@@ -325,7 +325,7 @@ See [`DEPLOYMENT.md`](DEPLOYMENT.md) for the full production checklist.
 
 ---
 
-## 🧠 Design Highlights — *why it's built this way*
+## 🧠 Design Highlights - *why it's built this way*
 
 - **The database is the message broker.** Decoupling the scorer (writer) from browsers (subscribers) via `postgres_changes` means scoring scales independently of viewer count.
 - **One API call per match.** De-duplicating rooms → match IDs keeps usage far under the 300 req/min limit, no matter how popular a fixture is.

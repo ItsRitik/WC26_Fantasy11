@@ -152,8 +152,9 @@ export default function ScoringPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-24">
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <div className="bg-gradient-to-br from-pulse-700 via-pulse-600 to-indigo-700 text-white">
-        <div className="max-w-lg mx-auto px-4 pt-8 pb-7">
+      <div className="relative overflow-hidden pitch-bg-dark text-white">
+        <div className="pitch-sweep" />
+        <div className="relative max-w-lg mx-auto px-4 pt-8 pb-7">
           <Link
             href="/fantasy"
             className="inline-flex items-center gap-1.5 text-xs text-white/70 hover:text-white mb-5 transition-colors"
@@ -373,11 +374,11 @@ export default function ScoringPage() {
           <div className="relative pl-6">
             <div className="absolute left-[7px] top-1 bottom-8 w-px bg-gradient-to-b from-pulse-400 to-transparent" />
             {[
-              { icon: '🔗', step: '1', title: 'Create a room',                body: 'Pick a match. Share your invite link with your opponent.' },
-              { icon: '📋', step: '2', title: 'Lineups drop (≈1 hr before)',  body: 'Player selection opens once the official starting XI is announced. Pick 11 players, set your Captain and Vice-Captain.' },
+              { icon: '🔗', step: '1', title: 'Create a contest',             body: 'Pick a match, then share your invite link or room code with up to 100 managers.' },
+              { icon: '📋', step: '2', title: 'Lineups drop (~1 hr before)',  body: 'Player selection opens once the official starting XI is announced. Pick 11 players, set your Captain and Vice-Captain.' },
               { icon: '🔒', step: '3', title: 'Picks lock at kick-off',       body: 'No changes once the whistle blows. Your team is set.' },
               { icon: '📡', step: '4', title: 'Live scoring every few mins',  body: 'Watch the points feed update as goals, cards, saves, and tackles roll in.' },
-              { icon: '🏆', step: '5', title: 'Result at full time',          body: 'Final points are tallied after 90+ minutes. Highest total wins. Draws are possible.' },
+              { icon: '🏆', step: '5', title: 'Result at full time',          body: 'Final points are tallied after 90+ minutes. The highest total tops the leaderboard and wins the contest.' },
             ].map((s, i) => (
               <div key={i} className="relative pb-6 last:pb-0">
                 <div className="absolute -left-[17px] top-0 w-5 h-5 rounded-full bg-white dark:bg-gray-900 border-2 border-pulse-400 flex items-center justify-center text-[11px] font-black text-pulse-600">

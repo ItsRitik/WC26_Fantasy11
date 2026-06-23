@@ -38,10 +38,11 @@ export function WorldCupHero() {
     const balls = Array.from({ length: 6 }, (_, i) => ({
       x: Math.random(), y: Math.random(),
       r: 11 + Math.random() * 15,
-      vy: -(0.08 + Math.random() * 0.22),
-      vx: -0.04 + Math.random() * 0.08,
+      // normalized units per frame - slow, gentle upward drift (~10-20s to cross)
+      vy: -(0.0008 + Math.random() * 0.0014),
+      vx: -0.0004 + Math.random() * 0.0008,
       rot: Math.random() * Math.PI * 2,
-      vr: (-0.012 + Math.random() * 0.024),
+      vr: (-0.004 + Math.random() * 0.008),
       depth: 0.5 + (i % 3) * 0.25,
     }))
 
@@ -83,7 +84,7 @@ export function WorldCupHero() {
         ctx.beginPath(); ctx.arc(s.x * W, s.y * H, s.r, 0, Math.PI * 2); ctx.fill(); ctx.restore()
       }
       for (const b of balls) {
-        if (!reduce) { b.y += b.vy * 0.016 * 60; b.x += b.vx * 0.016 * 60; b.rot += b.vr }
+        if (!reduce) { b.y += b.vy; b.x += b.vx; b.rot += b.vr }
         if (b.y * H < -40) { b.y = 1 + 40 / H; b.x = Math.random() }
         if (b.x < -0.06) b.x = 1.06
         if (b.x > 1.06) b.x = -0.06
