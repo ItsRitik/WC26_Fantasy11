@@ -151,44 +151,46 @@ export default function ScoringPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-24">
 
-      {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <div className="relative overflow-hidden pitch-bg-dark text-white">
-        <div className="pitch-sweep" />
-        <div className="relative max-w-lg mx-auto px-4 pt-8 pb-7">
-          <Link
-            href="/fantasy"
-            className="inline-flex items-center gap-1.5 text-xs text-white/70 hover:text-white mb-5 transition-colors"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M19 12H5M12 5l-7 7 7 7"/>
-            </svg>
-            Back to Fantasy
-          </Link>
+      {/* ── Hero (contained card, not a full-bleed band) ─────────────────── */}
+      <div className="max-w-lg mx-auto px-4 pt-5">
+        <Link
+          href="/fantasy"
+          className="inline-flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-pulse-600 dark:hover:text-pulse-400 mb-3 transition-colors"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <path d="M19 12H5M12 5l-7 7 7 7"/>
+          </svg>
+          Back to Fantasy
+        </Link>
 
-          <div className="flex items-start gap-3 mb-5">
-            <div className="text-4xl leading-none">🏆</div>
-            <div>
-              <h1 className="text-xl font-bold tracking-tight">Points System</h1>
-              <p className="text-sm text-white/70 mt-1 leading-relaxed">
-                Every goal, tackle, and save earns or costs your team points -
-                updated live every few minutes during a match.
-              </p>
-            </div>
-          </div>
-
-          {/* Headline stat pills */}
-          <div className="grid grid-cols-4 gap-2">
-            {[
-              { label: 'DEF/GK goal', value: '+60' },
-              { label: 'Penalty save', value: '+50' },
-              { label: 'Clean sheet', value: '+20' },
-              { label: 'Missed pen', value: '−20' },
-            ].map(s => (
-              <div key={s.label} className="bg-white/10 rounded-xl px-2 py-2.5 text-center">
-                <div className="text-base font-black">{s.value}</div>
-                <div className="text-[9px] text-white/60 mt-0.5 leading-tight">{s.label}</div>
+        <div className="relative overflow-hidden rounded-2xl pitch-bg-dark text-white border border-white/10 shadow-sm">
+          <div className="pitch-sweep" />
+          <div className="relative px-5 pt-5 pb-5">
+            <div className="flex items-start gap-3 mb-4">
+              <div className="text-4xl leading-none float-y">🏆</div>
+              <div>
+                <h1 className="text-xl font-black tracking-tight">Points System</h1>
+                <p className="text-sm text-white/70 mt-1 leading-relaxed">
+                  Every goal, tackle, and save earns or costs your team points,
+                  updated live every few minutes during a match.
+                </p>
               </div>
-            ))}
+            </div>
+
+            {/* Headline stat pills */}
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { label: 'DEF/GK goal', value: '+60' },
+                { label: 'Penalty save', value: '+50' },
+                { label: 'Clean sheet', value: '+20' },
+                { label: 'Missed pen', value: '−20' },
+              ].map(s => (
+                <div key={s.label} className="bg-white/10 rounded-xl px-2 py-2.5 text-center">
+                  <div className="text-base font-black">{s.value}</div>
+                  <div className="text-[9px] text-white/60 mt-0.5 leading-tight">{s.label}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
