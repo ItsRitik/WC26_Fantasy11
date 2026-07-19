@@ -76,33 +76,44 @@ export function useLiveRoom(roomId: string | null): UseLiveRoomResult {
         },
       )
       .subscribe((status) => {
-        if (status === 'CHANNEL_ERROR') {
-          setError('Realtime connection error - check Supabase Realtime is enabled for these tables.')
-        }
-        if (status === 'CLOSED') {
-          // channel was removed - normal during cleanup, ignore
+        // Realtime hiccups (CHANNEL_ERROR / TIMED_OUT) are transient and auto-
+        // reconnect - they must NOT surface as a fatal "room not found", because
+        // the room data is fetched separately below. Just log them.
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          console.warn('[useLiveRoom] realtime status:', status, '- will auto-reconnect')
         }
       })
 
     // ── 2. Initial data fetch (independent of channel) ────────────────────────
+    // Retry transient errors; only flag "not found" when the row is genuinely
+    // missing. This prevents a network/auth blip on back-nav from showing the
+    // "link expired" screen (which a refresh would otherwise fix).
     let cancelled = false
     ;(async () => {
-      const [roomRes, liveRes] = await Promise.all([
-        supabase.from('fantasy_rooms').select('*').eq('id', roomId).single(),
-        (supabase.from('fantasy_live_state') as any).select('*').eq('room_id', roomId).maybeSingle(),
-      ])
+      for (let attempt = 1; attempt <= 3 && !cancelled; attempt++) {
+        const roomRes = await supabase.from('fantasy_rooms').select('*').eq('id', roomId).maybeSingle()
+        if (cancelled) return
 
-      if (cancelled) return
+        if (roomRes.error) {
+          if (attempt < 3) { await new Promise(r => setTimeout(r, 400 * attempt)); continue }
+          setError(roomRes.error.message)
+          setLoading(false)
+          return
+        }
+        if (!roomRes.data) {
+          if (attempt < 3) { await new Promise(r => setTimeout(r, 400 * attempt)); continue }
+          setError('not_found')
+          setLoading(false)
+          return
+        }
 
-      if (roomRes.error) {
-        setError(roomRes.error.message)
+        setRoom(roomRes.data as FantasyRoom)
+        const liveRes = await (supabase.from('fantasy_live_state') as any).select('*').eq('room_id', roomId).maybeSingle()
+        if (!cancelled && liveRes?.data) setLiveState(liveRes.data as FantasyLiveState)
+        setError(null)
         setLoading(false)
         return
       }
-
-      setRoom(roomRes.data as FantasyRoom)
-      if (liveRes.data) setLiveState(liveRes.data as FantasyLiveState)
-      setLoading(false)
     })()
 
     // ── 3. Cleanup - removeChannel fully unregisters from Supabase ────────────
