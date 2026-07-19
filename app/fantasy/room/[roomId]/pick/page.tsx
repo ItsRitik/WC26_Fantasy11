@@ -22,6 +22,8 @@ type Pick = { player: LineupPlayer; role: PickRole }
 
 const ROLE_LABEL: Record<PickRole, string> = { captain: 'C', vice_captain: 'V', player: '' }
 const ROLE_MULT:  Record<PickRole, number>  = { captain: 2, vice_captain: 1.5, player: 1 }
+const POS_ORDER = ['GK', 'DEF', 'MID', 'FWD'] as const
+const POS_FULL: Record<string, string> = { GK: 'Goalkeeper', DEF: 'Defenders', MID: 'Midfielders', FWD: 'Forwards' }
 
 // ── Player row ────────────────────────────────────────────────────────────────
 function PlayerRow({ player, pick, onToggle, disabled }: {
@@ -161,6 +163,7 @@ export default function PickPage({ params }: { params: { roomId: string } }) {
   const [activePos,  setActivePos]  = useState<string>('ALL')
   const [saving,     setSaving]     = useState(false)
   const [saveError,  setSaveError]  = useState<string | null>(null)
+  const [step,       setStep]       = useState<'select' | 'review'>('select')
 
   // Load room + player pool + existing picks (once per room - guarded so
   // re-renders while building a team never re-hit /api/wc/lineups)
@@ -275,8 +278,9 @@ export default function PickPage({ params }: { params: { roomId: string } }) {
     return picks.filter(p => p.player.position === pos).length
   }
 
-  // Returns the first blocking error string, or null if valid
-  function getValidationError(): string | null {
+  // Squad validity: 11 players + formation + budget (required to reach review).
+  // Captain / Vice-Captain are chosen on the review screen, not here.
+  function getSquadError(): string | null {
     if (picks.length < 11) return `Pick ${11 - picks.length} more player${11 - picks.length > 1 ? 's' : ''}`
     if (picks.length > 11) return 'Too many players selected'
     if (remaining < 0)     return `Over budget by ${Math.abs(remaining).toFixed(1)} cr`
@@ -287,13 +291,14 @@ export default function PickPage({ params }: { params: { roomId: string } }) {
     if (midCount > 5)      return 'Too many MID - max 5'
     if (fwdCount < 1)      return 'Add at least 1 FWD'
     if (fwdCount > 3)      return 'Too many FWD - max 3'
-    if (captains !== 1)    return 'Tap a player to set Captain (×2 pts)'
-    if (vcs !== 1)         return 'Tap a player to set Vice-Captain (×1.5 pts)'
     return null
   }
 
-  const validationError = getValidationError()
-  const validPick       = validationError === null
+  const squadError = getSquadError()
+  const squadValid = squadError === null
+  const rolesValid = captains === 1 && vcs === 1
+  const validPick  = squadValid && rolesValid
+  const validationError = squadError ?? (captains !== 1 ? 'Choose your Captain' : vcs !== 1 ? 'Choose your Vice-Captain' : null)
 
   // Whether adding another player of this position would exceed the max
   function posMaxReached(pos: Pos) {
@@ -325,6 +330,16 @@ export default function PickPage({ params }: { params: { roomId: string } }) {
       }
       if (p.role === 'captain')      return { ...p, role: 'vice_captain' as PickRole }
       if (p.role === 'vice_captain') return { ...p, role: 'player' as PickRole }
+      return p
+    }))
+  }
+
+  // Review screen: assign a single Captain / Vice-Captain. Tapping the current
+  // holder clears it; assigning to a new player moves the badge off any other.
+  function setRole(player: LineupPlayer, role: 'captain' | 'vice_captain') {
+    setPicks(ps => ps.map(p => {
+      if (p.player.id === player.id) return { ...p, role: p.role === role ? 'player' : role }
+      if (p.role === role)           return { ...p, role: 'player' as PickRole }
       return p
     }))
   }
@@ -388,6 +403,100 @@ export default function PickPage({ params }: { params: { roomId: string } }) {
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-1 font-medium">Player list not available yet</p>
           <p className="text-xs text-gray-400 mb-4">Squads usually appear closer to kickoff - check back soon.</p>
           <Link href={`/fantasy/room/${roomId}`} className="text-sm text-pulse-600 font-semibold">← Back to room</Link>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Review screen: confirm XI, assign Captain / Vice-Captain, submit ──────────
+  if (step === 'review') {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-32">
+        <div className="sticky top-14 z-40 bg-white/95 dark:bg-gray-950/95 backdrop-blur border-b border-black/[0.07] dark:border-white/[0.07] px-4 py-3">
+          <div className="max-w-lg mx-auto flex items-center gap-3">
+            <button onClick={() => setStep('select')} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 flex-shrink-0" aria-label="Back to selection">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </button>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-bold text-gray-900 dark:text-gray-100">Review your XI</div>
+              <div className="text-[11px] text-gray-400 truncate">{match?.homeTeam.tla} vs {match?.awayTeam.tla} · pick your Captain &amp; Vice-Captain</div>
+            </div>
+            <div className="text-right flex-shrink-0">
+              <div className="text-sm font-black text-gray-900 dark:text-gray-100 tabular-nums">{spent.toFixed(1)}</div>
+              <div className="text-[9px] text-gray-400 -mt-0.5">of {budget}cr</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-lg mx-auto px-4 pt-4 space-y-5">
+          <div className="flex items-center justify-center gap-5 text-[11px] text-gray-500 dark:text-gray-400">
+            <span className="flex items-center gap-1.5"><span className="w-5 h-5 rounded-full bg-yellow-400 text-yellow-900 text-[9px] font-black flex items-center justify-center">C</span> Captain ×2</span>
+            <span className="flex items-center gap-1.5"><span className="w-5 h-5 rounded-full bg-blue-400 text-blue-900 text-[9px] font-black flex items-center justify-center">V</span> Vice-Captain ×1.5</span>
+          </div>
+
+          {POS_ORDER.map(pos => {
+            const group = picks.filter(p => p.player.position === pos)
+            if (group.length === 0) return null
+            return (
+              <div key={pos}>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">{POS_FULL[pos]} · {group.length}</p>
+                <div className="space-y-2">
+                  {group.map(p => {
+                    const isC = p.role === 'captain'
+                    const isV = p.role === 'vice_captain'
+                    return (
+                      <div key={p.player.id} className={clsx('flex items-center gap-3 rounded-xl border px-3 py-2.5 transition-colors',
+                        isC ? 'bg-yellow-50 dark:bg-yellow-900/10 border-yellow-200 dark:border-yellow-800/40'
+                        : isV ? 'bg-blue-50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-800/40'
+                        : 'bg-white dark:bg-gray-900 border-black/[0.07] dark:border-white/[0.07]')}>
+                        <div className="relative w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-sm font-bold flex-shrink-0 overflow-hidden">
+                          {p.player.jersey_number ?? '?'}
+                          {p.player.photo && (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={p.player.photo} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover" onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">{p.player.name}</div>
+                          <div className="text-[10px] text-gray-400">{p.player.team_tla} · {p.player.price}cr</div>
+                        </div>
+                        <button onClick={() => setRole(p.player, 'captain')}
+                          className={clsx('w-8 h-8 rounded-full text-[11px] font-black flex items-center justify-center border-2 transition-colors flex-shrink-0',
+                            isC ? 'bg-yellow-400 border-yellow-300 text-yellow-900' : 'border-gray-200 dark:border-gray-700 text-gray-400 hover:border-yellow-300')}>C</button>
+                        <button onClick={() => setRole(p.player, 'vice_captain')}
+                          className={clsx('w-8 h-8 rounded-full text-[11px] font-black flex items-center justify-center border-2 transition-colors flex-shrink-0',
+                            isV ? 'bg-blue-400 border-blue-300 text-blue-900' : 'border-gray-200 dark:border-gray-700 text-gray-400 hover:border-blue-300')}>VC</button>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )
+          })}
+
+          <div className="flex items-center justify-between text-[11px] text-gray-400 px-1 pt-1">
+            <span>{picks.length}/11 players</span>
+            <span>{remaining}cr remaining</span>
+          </div>
+        </div>
+
+        {/* Fixed submit */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-950/95 backdrop-blur border-t border-black/[0.07] dark:border-white/[0.07] px-4 py-3 safe-bottom">
+          <div className="max-w-lg mx-auto">
+            {saveError && <p className="text-xs text-red-500 text-center mb-2">{saveError}</p>}
+            <button onClick={handleSave} disabled={!rolesValid || saving}
+              className={clsx('w-full flex items-center justify-center gap-2 h-12 rounded-xl text-sm font-semibold transition-all',
+                rolesValid && !saving ? 'bg-pulse-600 hover:bg-pulse-700 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed')}>
+              {saving
+                ? <><span className="w-4 h-4 rounded-full border-2 border-white/50 border-t-white animate-spin" /> Submitting…</>
+                : <>Submit team <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5"/></svg></>}
+            </button>
+            {!rolesValid && (
+              <p className="text-[11px] text-center text-amber-600 dark:text-amber-400 font-medium mt-2">
+                {captains !== 1 ? 'Tap C to choose your Captain' : 'Tap VC to choose your Vice-Captain'}
+              </p>
+            )}
+          </div>
         </div>
       </div>
     )
@@ -459,9 +568,7 @@ export default function PickPage({ params }: { params: { roomId: string } }) {
                 warn: fwdCount > 3,
                 sub: fwdCount < 1 ? ' (need 1)' : fwdCount > 3 ? ' (max 3)' : '',
               },
-              // Captain / VC / budget
-              { label: captains === 1 ? '✓ C'  : 'C?',  ok: captains === 1, warn: false, sub: '' },
-              { label: vcs === 1      ? '✓ VC' : 'VC?', ok: vcs === 1,      warn: false, sub: '' },
+              // Budget
               {
                 label: remaining >= 0 ? `${remaining}cr` : `−${Math.abs(remaining)}cr`,
                 ok: remaining >= 0 && remaining <= budget,
@@ -498,7 +605,7 @@ export default function PickPage({ params }: { params: { roomId: string } }) {
         {picks.length > 0 && (
           <div>
             <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">
-              Your team - tap to cycle C / VC role
+              Your XI so far · {picks.length}/11
             </p>
             <TeamStrip picks={picks} onCycleRole={cycleRole} />
           </div>
@@ -542,31 +649,26 @@ export default function PickPage({ params }: { params: { roomId: string } }) {
         </div>
       </div>
 
-      {/* Fixed bottom CTA */}
+      {/* Fixed bottom CTA - go to review */}
       <div className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-950/95 backdrop-blur border-t border-black/[0.07] dark:border-white/[0.07] px-4 py-3 safe-bottom">
         <div className="max-w-lg mx-auto">
-          {saveError && (
-            <p className="text-xs text-red-500 text-center mb-2">{saveError}</p>
-          )}
           <button
-            onClick={handleSave}
-            disabled={!validPick || saving}
+            onClick={() => setStep('review')}
+            disabled={!squadValid}
             className={clsx(
               'w-full flex items-center justify-center gap-2 h-12 rounded-xl text-sm font-semibold transition-all',
-              validPick && !saving
+              squadValid
                 ? 'bg-pulse-600 hover:bg-pulse-700 text-white'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed'
             )}
           >
-            {saving ? (
-              <><span className="w-4 h-4 rounded-full border-2 border-white/50 border-t-white animate-spin" /> Saving team…</>
-            ) : (
-              <>Save team & return to room <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></>
-            )}
+            {squadValid
+              ? <>Review team &amp; pick C / VC <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></>
+              : <>Select your XI</>}
           </button>
-          {validationError && picks.length > 0 && (
+          {squadError && picks.length > 0 && (
             <p className="text-[11px] text-center text-red-500 dark:text-red-400 font-medium mt-2">
-              ⚠ {validationError}
+              ⚠ {squadError}
             </p>
           )}
         </div>

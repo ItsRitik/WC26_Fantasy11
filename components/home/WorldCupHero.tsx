@@ -117,14 +117,14 @@ export function WorldCupHero() {
           The FIFA World Cup, your way. Draft your XI, invite your friends, and watch the points roll in live.
         </p>
 
-        <div className="mt-6 flex items-center justify-center gap-3">
+        <div className="mt-6 flex flex-nowrap items-center justify-center gap-2 sm:gap-3">
           <Link href="/fantasy"
-            className="h-11 px-6 flex items-center gap-2 rounded-xl bg-white text-gray-900 text-sm font-bold hover:bg-gray-100 transition-colors shadow">
+            className="h-10 sm:h-11 px-4 sm:px-6 flex items-center gap-1.5 rounded-xl bg-white text-gray-900 text-xs sm:text-sm font-bold hover:bg-gray-100 transition-colors shadow whitespace-nowrap">
             Play Fantasy
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
           </Link>
           <Link href="/fixtures"
-            className="h-11 px-6 flex items-center rounded-xl bg-white/10 text-white text-sm font-semibold hover:bg-white/20 transition-colors border border-white/20 backdrop-blur-sm">
+            className="h-10 sm:h-11 px-4 sm:px-6 flex items-center rounded-xl bg-white/10 text-white text-xs sm:text-sm font-semibold hover:bg-white/20 transition-colors border border-white/20 backdrop-blur-sm whitespace-nowrap">
             Browse fixtures
           </Link>
         </div>

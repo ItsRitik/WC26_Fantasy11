@@ -18,13 +18,10 @@ import {
   getWCFixture,
   getLineups,
   getTeamSquad,
-  getTeamWCForm,
   type AFLineup,
   type AFSquadPlayer,
-  type AFWCForm,
 } from '@/lib/api/apifootball'
 import { teamTla } from '@/lib/api/tla'
-import { pricePlayers } from '@/lib/api/playerPrices'
 import { basePrice } from '@/lib/pricing'
 import type { LineupPlayer } from '@/lib/types'
 
@@ -35,9 +32,9 @@ const POS_LONG: Record<string, Position> = {
   Goalkeeper: 'GK', Defender: 'DEF', Midfielder: 'MID', Attacker: 'FWD',
 }
 
-// Placeholder price; overwritten by form-based credits before responding.
-function price(pos: Position): number {
-  return basePrice(pos)
+// Position-based price. Starters get a small premium so budget choices matter.
+function price(pos: Position, starter = false): number {
+  return +(basePrice(pos) + (starter ? 1 : 0)).toFixed(1)
 }
 
 function playerPhoto(id: number) {
@@ -68,7 +65,7 @@ function fromLineups(lineups: AFLineup[], matchId: string): LineupPlayer[] {
           team_tla:      tla,
           position:      pos,
           jersey_number: player.number ?? null,
-          price:         price(pos),
+          price:         price(pos, starters),
           is_starter:    starters,
           photo:         player.photo ?? playerPhoto(player.id),
           team_logo:     logo,
@@ -100,22 +97,6 @@ function fromSquad(squad: AFSquadPlayer[], tla: string, matchId: string, logo: s
     })
 }
 
-/** Overwrite placeholder prices with real form-based credits (club + WC form). */
-async function applyPrices(players: LineupPlayer[], homeId: number, awayId: number): Promise<void> {
-  try {
-    // WC tournament form for both teams (cheap, cached) → boosts in-form players
-    const [homeWC, awayWC] = await Promise.all([
-      getTeamWCForm(homeId).catch(() => ({} as Record<number, AFWCForm>)),
-      getTeamWCForm(awayId).catch(() => ({} as Record<number, AFWCForm>)),
-    ])
-    const wc: Record<number, AFWCForm> = { ...homeWC, ...awayWC }
-    const map = await pricePlayers(players.map(p => ({ id: p.api_player_id, position: p.position })), wc)
-    for (const p of players) p.price = map.get(p.api_player_id) ?? basePrice(p.position)
-  } catch {
-    // pricing unavailable → keep position-base placeholders (team building still works)
-  }
-}
-
 export async function GET(
   _req: NextRequest,
   { params }: { params: { fixtureId: string } },
@@ -141,7 +122,6 @@ export async function GET(
     // Confirmed lineups out for both teams → use them
     if (lineups.length === 2 && lineups.every(l => l.startXI.length > 0)) {
       const players = fromLineups(lineups, params.fixtureId)
-      await applyPrices(players, home.id, away.id)
       return NextResponse.json(
         { players, source: 'lineup', home, away },
         { headers: { 'Cache-Control': 's-maxage=300, stale-while-revalidate=60' } },
@@ -166,7 +146,6 @@ export async function GET(
       )
     }
 
-    await applyPrices(players, home.id, away.id)
     return NextResponse.json(
       { players, source: 'squad', home, away },
       { headers: { 'Cache-Control': 's-maxage=3600, stale-while-revalidate=600' } },
