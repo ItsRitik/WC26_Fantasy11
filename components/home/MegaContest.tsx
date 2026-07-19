@@ -21,10 +21,6 @@ const TITLE   = process.env.NEXT_PUBLIC_MEGA_TITLE ?? 'World Cup Final Mega Cont
 const PRIZE   = process.env.NEXT_PUBLIC_MEGA_PRIZE
 
 type RoomInfo = {
-  match_label: string | null
-  home_team_tla: string | null
-  away_team_tla: string | null
-  kickoff_at: string
   max_players: number
   entries: number
 }
@@ -47,12 +43,10 @@ export function MegaContest() {
     const sb = createClient()
     ;(async () => {
       const [{ data: r }, { count }] = await Promise.all([
-        sb.from('fantasy_rooms')
-          .select('match_label, home_team_tla, away_team_tla, kickoff_at, max_players')
-          .eq('id', ROOM_ID).maybeSingle(),
+        sb.from('fantasy_rooms').select('max_players').eq('id', ROOM_ID).maybeSingle(),
         sb.from('fantasy_room_members').select('*', { count: 'exact', head: true }).eq('room_id', ROOM_ID),
       ])
-      if (r) setRoom({ ...(r as Omit<RoomInfo, 'entries'>), entries: count ?? 0 })
+      if (r) setRoom({ max_players: (r as { max_players: number }).max_players, entries: count ?? 0 })
     })().catch(() => {})
   }, [])
 
@@ -64,18 +58,6 @@ export function MegaContest() {
     if (navigator.share) navigator.share({ title: TITLE, url }).catch(() => {})
     else { navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800) }
   }
-
-  const matchName = room?.match_label ?? (room?.home_team_tla && room?.away_team_tla ? `${room.home_team_tla} vs ${room.away_team_tla}` : null)
-  const kickoff = room ? new Date(room.kickoff_at).toLocaleString('en-GB', {
-    weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
-  }) : null
-
-  const Chip = ({ label, value }: { label: string; value: string }) => (
-    <div className="flex flex-col rounded-xl bg-white/10 border border-white/10 px-3 py-2 min-w-0">
-      <span className="text-[9px] uppercase tracking-wider text-white/50">{label}</span>
-      <span className="text-xs font-semibold text-white truncate">{value}</span>
-    </div>
-  )
 
   return (
     <div className="relative overflow-hidden rounded-3xl border border-white/10 shadow-lg" style={BG}>
@@ -94,12 +76,11 @@ export function MegaContest() {
           Spots are limited and fill first-come, so join early to claim yours.
         </p>
 
-        {/* Match / kickoff / spots */}
+        {/* Spots filled */}
         {room && (
-          <div className="mt-4 grid grid-cols-3 gap-2 max-w-md">
-            {matchName && <Chip label="Match" value={matchName} />}
-            {kickoff && <Chip label="Kick-off" value={kickoff} />}
-            <Chip label="Spots" value={`${room.entries}/${room.max_players} joined`} />
+          <div className="mt-4 inline-flex items-center gap-2 rounded-xl bg-white/10 border border-white/10 px-3.5 py-2">
+            <span className="text-[9px] uppercase tracking-wider text-white/50">Spots</span>
+            <span className="text-sm font-bold text-white tabular-nums">{room.entries}/{room.max_players} joined</span>
           </div>
         )}
 
