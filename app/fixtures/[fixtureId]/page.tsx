@@ -608,9 +608,9 @@ function PlayerToken({
   const photoUrl = `https://media.api-sports.io/football/players/${player.id}.png`
 
   return (
-    <div className="flex flex-col items-center gap-0.5 w-14">
+    <div className="flex flex-col items-center gap-0.5 min-w-0 flex-1 max-w-[64px]">
       <div className="relative">
-        <div className="w-11 h-11 rounded-full flex-shrink-0 overflow-hidden border-2 flex items-center justify-center font-bold text-xs bg-white/20 border-white/30 text-white">
+        <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-full flex-shrink-0 overflow-hidden border-2 flex items-center justify-center font-bold text-xs bg-white/20 border-white/30 text-white">
           {!imgErr ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -652,7 +652,7 @@ function PlayerToken({
         )}
       </div>
 
-      <span className="text-center leading-tight font-medium drop-shadow-sm max-w-full truncate text-[10px] text-white">
+      <span className="text-center leading-tight font-medium drop-shadow-sm max-w-full truncate text-[9px] sm:text-[10px] text-white w-full px-0.5">
         {playerLastName(player.name)}
       </span>
     </div>
