@@ -15,10 +15,11 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { WINNER_PRIZE } from '@/lib/config'
 
 const ROOM_ID = process.env.NEXT_PUBLIC_MEGA_ROOM_ID
 const TITLE   = process.env.NEXT_PUBLIC_MEGA_TITLE ?? 'World Cup Final Mega Contest'
-const PRIZE   = process.env.NEXT_PUBLIC_MEGA_PRIZE
+const PRIZE   = process.env.NEXT_PUBLIC_MEGA_PRIZE ?? WINNER_PRIZE
 
 type RoomInfo = {
   max_players: number
@@ -75,6 +76,11 @@ export function MegaContest() {
           {PRIZE ? <> to win <span className="font-semibold text-white">{PRIZE}</span></> : null}.
           Spots are limited and fill first-come, so join early to claim yours.
         </p>
+
+        <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-amber-400 text-amber-950 px-4 py-1.5 text-sm font-black shadow-md shine-sweep">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 4h12v3a6 6 0 01-12 0zM6 5H3v2a4 4 0 004 4M18 5h3v2a4 4 0 01-4 4M9 17h6M12 13v4M8 21h8"/></svg>
+          Winner takes {PRIZE}
+        </div>
 
         {/* Spots filled */}
         {room && (

@@ -23,6 +23,7 @@ import type { FantasyRoom, FantasyPick, FantasyRoomMember, Position } from '@/li
 import Link from 'next/link'
 import clsx from 'clsx'
 import useSWR from 'swr'
+import { WINNER_PRIZE } from '@/lib/config'
 
 const swrFetcher = async (url: string) => {
   const res = await fetch(url)
@@ -577,6 +578,14 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
             <p className="text-center text-[10px] text-white/60 mt-4">{formatDate(room.kickoff_at)}</p>
           </div>
         </div>
+
+        {/* Winner reward */}
+        {!isOver && (
+          <div className="flex items-center justify-center gap-2 rounded-xl bg-amber-400 text-amber-950 px-4 py-2.5 text-sm font-black shadow-sm shine-sweep">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 4h12v3a6 6 0 01-12 0zM6 5H3v2a4 4 0 004 4M18 5h3v2a4 4 0 01-4 4M9 17h6M12 13v4M8 21h8"/></svg>
+            Winner takes {WINNER_PRIZE}
+          </div>
+        )}
 
         {/* Enter by building a team (host or open seat) */}
         {canEnter && (

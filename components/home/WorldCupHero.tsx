@@ -9,6 +9,7 @@
 
 import Link from 'next/link'
 import { useEffect, useRef } from 'react'
+import { WINNER_PRIZE } from '@/lib/config'
 
 export function WorldCupHero() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -117,6 +118,11 @@ export function WorldCupHero() {
         <p className="mt-3 text-sm sm:text-base text-white/75 max-w-md mx-auto">
           The FIFA World Cup, your way. Draft your XI, invite your friends, and watch the points roll in live.
         </p>
+
+        <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-amber-400 text-amber-950 px-4 py-1.5 text-sm font-black shadow-md shine-sweep">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 4h12v3a6 6 0 01-12 0zM6 5H3v2a4 4 0 004 4M18 5h3v2a4 4 0 01-4 4M9 17h6M12 13v4M8 21h8"/></svg>
+          Win {WINNER_PRIZE} in the World Cup Final
+        </div>
 
         <div className="mt-6 flex flex-nowrap items-center justify-center gap-2 sm:gap-3">
           <Link href="/fantasy"
