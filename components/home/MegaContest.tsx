@@ -2,45 +2,87 @@
 
 /**
  * MegaContest - a single, promoted "grand final" room you share on social to
- * funnel users into one contest. Config-driven via public env vars so you point
- * it at whatever room you create for the final (no code change to launch):
+ * funnel users into one contest. Config-driven via public env vars:
  *
  *   NEXT_PUBLIC_MEGA_ROOM_ID   the room id to join (required to show the banner)
  *   NEXT_PUBLIC_MEGA_TITLE     headline (default: "World Cup Final Mega Contest")
  *   NEXT_PUBLIC_MEGA_PRIZE     prize text, e.g. "a cash prize" (optional)
  *
+ * Match name / kickoff / spots are pulled live from the room itself.
  * Renders nothing until NEXT_PUBLIC_MEGA_ROOM_ID is set.
  */
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
 
 const ROOM_ID = process.env.NEXT_PUBLIC_MEGA_ROOM_ID
 const TITLE   = process.env.NEXT_PUBLIC_MEGA_TITLE ?? 'World Cup Final Mega Contest'
 const PRIZE   = process.env.NEXT_PUBLIC_MEGA_PRIZE
 
+type RoomInfo = {
+  match_label: string | null
+  home_team_tla: string | null
+  away_team_tla: string | null
+  kickoff_at: string
+  max_players: number
+  entries: number
+}
+
+// Premium "final night" background - deep navy/violet with a warm gold glow.
+const BG = {
+  backgroundColor: '#0d1024',
+  backgroundImage:
+    'radial-gradient(120% 130% at 12% -10%, rgba(250,204,21,0.20), transparent 42%),' +
+    'radial-gradient(90% 120% at 100% 110%, rgba(99,102,241,0.22), transparent 45%),' +
+    'linear-gradient(135deg, #0e1130 0%, #1b1140 55%, #0b1526 100%)',
+}
+
 export function MegaContest() {
   const [copied, setCopied] = useState(false)
+  const [room, setRoom] = useState<RoomInfo | null>(null)
+
+  useEffect(() => {
+    if (!ROOM_ID) return
+    const sb = createClient()
+    ;(async () => {
+      const [{ data: r }, { count }] = await Promise.all([
+        sb.from('fantasy_rooms')
+          .select('match_label, home_team_tla, away_team_tla, kickoff_at, max_players')
+          .eq('id', ROOM_ID).maybeSingle(),
+        sb.from('fantasy_room_members').select('*', { count: 'exact', head: true }).eq('room_id', ROOM_ID),
+      ])
+      if (r) setRoom({ ...(r as Omit<RoomInfo, 'entries'>), entries: count ?? 0 })
+    })().catch(() => {})
+  }, [])
+
   if (!ROOM_ID) return null
 
   const href = `/fantasy/room/${ROOM_ID}`
   const share = () => {
     const url = `${window.location.origin}${href}`
-    if (navigator.share) {
-      navigator.share({ title: TITLE, url }).catch(() => {})
-    } else {
-      navigator.clipboard.writeText(url)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 1800)
-    }
+    if (navigator.share) navigator.share({ title: TITLE, url }).catch(() => {})
+    else { navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800) }
   }
 
+  const matchName = room?.match_label ?? (room?.home_team_tla && room?.away_team_tla ? `${room.home_team_tla} vs ${room.away_team_tla}` : null)
+  const kickoff = room ? new Date(room.kickoff_at).toLocaleString('en-GB', {
+    weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
+  }) : null
+
+  const Chip = ({ label, value }: { label: string; value: string }) => (
+    <div className="flex flex-col rounded-xl bg-white/10 border border-white/10 px-3 py-2 min-w-0">
+      <span className="text-[9px] uppercase tracking-wider text-white/50">{label}</span>
+      <span className="text-xs font-semibold text-white truncate">{value}</span>
+    </div>
+  )
+
   return (
-    <div className="relative overflow-hidden rounded-3xl pitch-bg-dark border border-white/10 shadow-lg">
+    <div className="relative overflow-hidden rounded-3xl border border-white/10 shadow-lg" style={BG}>
       <div className="pitch-sweep" />
       <div className="relative px-5 sm:px-8 py-6 sm:py-7">
-        <div className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.22em] text-pulse-200">
-          <span className="w-1.5 h-1.5 rounded-full bg-pulse-300 live-dot" />
+        <div className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.22em] text-amber-300">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 live-dot" />
           Grand Final Contest
         </div>
 
@@ -51,6 +93,15 @@ export function MegaContest() {
           {PRIZE ? <> to win <span className="font-semibold text-white">{PRIZE}</span></> : null}.
           Spots are limited and fill first-come, so join early to claim yours.
         </p>
+
+        {/* Match / kickoff / spots */}
+        {room && (
+          <div className="mt-4 grid grid-cols-3 gap-2 max-w-md">
+            {matchName && <Chip label="Match" value={matchName} />}
+            {kickoff && <Chip label="Kick-off" value={kickoff} />}
+            <Chip label="Spots" value={`${room.entries}/${room.max_players} joined`} />
+          </div>
+        )}
 
         <div className="mt-5 flex flex-nowrap items-center gap-2 sm:gap-3">
           <Link href={href}
