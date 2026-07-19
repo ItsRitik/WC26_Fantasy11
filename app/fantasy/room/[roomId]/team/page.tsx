@@ -270,7 +270,7 @@ export default function TeamViewPage({ params }: { params: { roomId: string } })
       if (!isMyTeam) {
         const allowed = r.status === 'live' || r.status === 'finished'
         if (!allowed) {
-          setError("Opponent's team is hidden until the match kicks off 🔒")
+          setError("Opponent's team is hidden until the match kicks off")
           setLoading(false)
           return
         }
@@ -318,7 +318,9 @@ export default function TeamViewPage({ params }: { params: { roomId: string } })
     return (
       <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
         <div className="text-center max-w-sm">
-          <div className="text-4xl mb-4">🔒</div>
+          <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+          </div>
           <p className="text-sm text-gray-300 mb-5">{error}</p>
           <Link
             href={`/fantasy/room/${roomId}`}

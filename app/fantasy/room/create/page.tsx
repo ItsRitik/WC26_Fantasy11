@@ -123,7 +123,9 @@ function CreateRoomPageInner() {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center px-4">
         <div className="text-center">
-          <div className="text-4xl mb-3">⚽</div>
+          <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7.5l2.6 1.9-1 3.1h-3.2l-1-3.1z"/></svg>
+          </div>
           <p className="text-sm text-gray-400 mb-4">Match not found. Go back and pick one.</p>
           <Link href="/fantasy" className="text-sm text-pulse-600 font-semibold">← Back to lobby</Link>
         </div>
@@ -210,14 +212,14 @@ function CreateRoomPageInner() {
           </div>
           <div className="flex items-center justify-between pt-4 border-t border-black/[0.05] dark:border-white/[0.05] text-xs text-gray-500">
             <span>⏰ {formatKickoff(match.kickoff)}</span>
-            <span>🔒 Picks lock at kick-off ({lockTime.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })})</span>
+            <span>Picks lock at kick-off ({lockTime.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })})</span>
           </div>
         </div>
 
         {/* Friendly note */}
         {match.isFriendly && (
           <div className="flex items-start gap-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/40 rounded-xl px-4 py-3">
-            <span className="text-lg flex-shrink-0">ℹ️</span>
+            <span className="flex-shrink-0 text-blue-500 mt-0.5"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></span>
             <p className="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
               This is a pre-WC warm-up friendly. Lineup data may not be available until closer to kickoff. Player scoring works the same as tournament matches.
             </p>
@@ -227,7 +229,7 @@ function CreateRoomPageInner() {
         {/* Already started warning */}
         {alreadyStarted && (
           <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/40 rounded-xl px-4 py-3">
-            <span className="text-lg flex-shrink-0">⚠️</span>
+            <span className="flex-shrink-0 text-amber-500 mt-0.5"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L14.7 3.9a2 2 0 00-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></span>
             <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
               This match has already started. Picks will be locked immediately on room creation.
             </p>

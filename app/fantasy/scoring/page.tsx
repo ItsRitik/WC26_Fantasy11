@@ -21,96 +21,96 @@ type ScoringRow = {
 const ROWS: ScoringRow[] = [
   // ── Attack ────────────────────────────────────────────────────────────────
   {
-    icon: '⚽', label: 'Goal - Striker (FWD)', pts: '+40', cat: 'attack',
+    icon: '', label: 'Goal - Striker (FWD)', pts: '+40', cat: 'attack',
     position: 'FWD',
   },
   {
-    icon: '⚽', label: 'Goal - Midfielder (MID)', pts: '+50', cat: 'attack',
+    icon: '', label: 'Goal - Midfielder (MID)', pts: '+50', cat: 'attack',
     position: 'MID',
   },
   {
-    icon: '⚽', label: 'Goal - Defender / GK', pts: '+60', cat: 'attack',
+    icon: '', label: 'Goal - Defender / GK', pts: '+60', cat: 'attack',
     position: 'DEF · GK',
     note: 'Defenders and keepers score more for goals - reward the unexpected.',
   },
   {
-    icon: '🎯', label: 'Assist', pts: '+20', cat: 'attack',
+    icon: '', label: 'Assist', pts: '+20', cat: 'attack',
     note: 'Direct assist, rebound assist, won-penalty assist, and own-goal-from-cross assist all count.',
   },
   {
-    icon: '👟', label: 'Shot on Target', pts: '+6', cat: 'attack',
+    icon: '', label: 'Shot on Target', pts: '+6', cat: 'attack',
     position: 'All',
     note: 'Goals count as shots on target - scorer earns both the goal bonus and +6.',
   },
   {
-    icon: '🔑', label: 'Chance Created (key pass)', pts: '+3', cat: 'attack',
+    icon: '', label: 'Chance Created (key pass)', pts: '+3', cat: 'attack',
     position: 'All',
     note: 'The final touch leading to any shot (on target, blocked, or off target). If that same pass earned an Assist, no additional Chance Created points are awarded.',
   },
   {
-    icon: '🔄', label: 'Per 5 passes completed', pts: '+1', cat: 'attack',
+    icon: '', label: 'Per 5 passes completed', pts: '+1', cat: 'attack',
     position: 'All',
     note: '10 passes = +2, 25 passes = +5, etc. Based on passes × accuracy %.',
   },
   // ── Defense ───────────────────────────────────────────────────────────────
   {
-    icon: '🛡️', label: 'Tackle Won', pts: '+4', cat: 'defense',
+    icon: '', label: 'Tackle Won', pts: '+4', cat: 'defense',
     position: 'All',
     note: 'Player takes the ball away from the opponent or puts it out of play.',
   },
   {
-    icon: '✂️', label: 'Interception Won', pts: '+4', cat: 'defense',
+    icon: '', label: 'Interception Won', pts: '+4', cat: 'defense',
     position: 'All',
     note: 'Player intentionally steps into the line of a pass and retains possession.',
   },
   {
-    icon: '🧤', label: 'Save (GK)', pts: '+6', cat: 'defense',
+    icon: '', label: 'Save (GK)', pts: '+6', cat: 'defense',
     position: 'GK',
     note: 'Every save earns +6. A GK making 5 saves = +30 save points alone.',
   },
   {
-    icon: '🛑', label: 'Penalty Saved (GK)', pts: '+50', cat: 'defense',
+    icon: '', label: 'Penalty Saved (GK)', pts: '+50', cat: 'defense',
     position: 'GK',
     note: 'Only awarded if the goalkeeper touches the ball. A complete miss by the taker does NOT earn the keeper +50.',
   },
   {
-    icon: '🔒', label: 'Clean Sheet (GK / DEF)', pts: '+20', cat: 'defense',
+    icon: '', label: 'Clean Sheet (GK / DEF)', pts: '+20', cat: 'defense',
     position: 'GK · DEF',
     note: 'Team concedes zero goals while the player is on the field, and they played 54+ minutes. A sub removed before any goal was conceded still earns this if they played 54+ min.',
   },
   // ── Appearance ────────────────────────────────────────────────────────────
   {
-    icon: '▶️', label: 'Starting XI', pts: '+4', cat: 'appearance',
+    icon: '', label: 'Starting XI', pts: '+4', cat: 'appearance',
     position: 'All',
     note: 'Awarded when a player is named in the starting lineup and takes the field.',
   },
   {
-    icon: '🔁', label: 'Substitute appearance', pts: '+2', cat: 'appearance',
+    icon: '', label: 'Substitute appearance', pts: '+2', cat: 'appearance',
     position: 'All',
     note: 'Awarded when a player comes on from the bench and plays.',
   },
   // ── Negative ──────────────────────────────────────────────────────────────
   {
-    icon: '🟨', label: 'Yellow card', pts: '−4', cat: 'negative',
+    icon: '', label: 'Yellow card', pts: '−4', cat: 'negative',
     position: 'All',
     note: 'If a player receives a second yellow (leading to a red), only the −10 red card penalty applies - not −4 as well.',
   },
   {
-    icon: '🟥', label: 'Red card', pts: '−10', cat: 'negative',
+    icon: '', label: 'Red card', pts: '−10', cat: 'negative',
     position: 'All',
     note: 'Player continues to be penalised for goals conceded by their team even after leaving the pitch.',
   },
   {
-    icon: '😬', label: 'Own goal', pts: '−8', cat: 'negative',
+    icon: '', label: 'Own goal', pts: '−8', cat: 'negative',
     position: 'All',
   },
   {
-    icon: '💔', label: 'Goal conceded (GK / DEF)', pts: '−2', cat: 'negative',
+    icon: '', label: 'Goal conceded (GK / DEF)', pts: '−2', cat: 'negative',
     position: 'GK · DEF',
     note: 'Per goal conceded while the player is on the field. Red-carded players continue to accumulate this penalty after leaving.',
   },
   {
-    icon: '❌', label: 'Penalty missed', pts: '−20', cat: 'negative',
+    icon: '', label: 'Penalty missed', pts: '−20', cat: 'negative',
     position: 'All',
     note: 'Only applies when the goalkeeper has not touched the ball. A saved penalty does not trigger this penalty.',
   },
@@ -164,7 +164,9 @@ export default function ScoringPage() {
         </Link>
 
         <div className="flex items-start gap-3 mb-4">
-          <div className="text-4xl leading-none">🏆</div>
+          <div className="flex-shrink-0 text-pulse-600 dark:text-pulse-400">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><path d="M6 4h12v3a6 6 0 01-12 0zM6 5H3v2a4 4 0 004 4M18 5h3v2a4 4 0 01-4 4M9 17h6M12 13v4M8 21h8"/></svg>
+          </div>
           <div>
             <h1 className="text-xl font-black text-gray-900 dark:text-gray-100 tracking-tight">Points System</h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
@@ -280,7 +282,7 @@ export default function ScoringPage() {
                   className="w-full flex items-center gap-3 px-4 py-3.5 text-left hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
                 >
                   {/* Icon */}
-                  <span className="text-xl w-7 text-center flex-shrink-0 leading-none">{row.icon}</span>
+                  <span className="w-7 flex justify-center flex-shrink-0"><span className={`w-2.5 h-2.5 rounded-full bg-current ${cat.color}`} /></span>
 
                   {/* Label + position badge */}
                   <div className="flex-1 min-w-0">
@@ -331,16 +333,16 @@ export default function ScoringPage() {
           <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Team rules</h2>
           <div className="bg-white dark:bg-gray-900 rounded-2xl border border-black/[0.07] dark:border-white/[0.07] overflow-hidden divide-y divide-black/[0.04] dark:divide-white/[0.04]">
             {[
-              { icon: '🥅', label: 'Goalkeeper',            value: 'Exactly 1',    note: 'GK' },
-              { icon: '🛡️', label: 'Defenders',             value: '3 - 5',        note: 'DEF' },
-              { icon: '⚙️', label: 'Midfielders',           value: '3 - 5',        note: 'MID' },
-              { icon: '⚡', label: 'Forwards',              value: '1 - 3',        note: 'FWD' },
-              { icon: '👥', label: 'Total players',         value: '11',           note: '' },
-              { icon: '💰', label: 'Budget',                value: '≤ 100 credits',note: '' },
-              { icon: '🏳️', label: 'Max from one team',    value: '7 players',    note: '' },
+              { icon: '', label: 'Goalkeeper',            value: 'Exactly 1',    note: 'GK' },
+              { icon: '', label: 'Defenders',             value: '3 - 5',        note: 'DEF' },
+              { icon: '', label: 'Midfielders',           value: '3 - 5',        note: 'MID' },
+              { icon: '', label: 'Forwards',              value: '1 - 3',        note: 'FWD' },
+              { icon: '', label: 'Total players',         value: '11',           note: '' },
+              { icon: '', label: 'Budget',                value: '≤ 100 credits',note: '' },
+              { icon: '', label: 'Max from one team',    value: '7 players',    note: '' },
             ].map(r => (
               <div key={r.label} className="flex items-center gap-3 px-4 py-3">
-                <span className="text-lg w-6 text-center flex-shrink-0">{r.icon}</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-pulse-400 flex-shrink-0" />
                 <span className="flex-1 text-sm text-gray-700 dark:text-gray-200">{r.label}</span>
                 {r.note && (
                   <span className="text-[9px] font-bold text-gray-400 bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">{r.note}</span>
@@ -395,7 +397,7 @@ export default function ScoringPage() {
 
         {/* ── CTA ──────────────────────────────────────────────────────────── */}
         <div className="bg-gradient-to-r from-pulse-600 to-indigo-600 rounded-2xl p-5 text-center text-white">
-          <div className="text-3xl mb-2">⚡</div>
+          <div className="flex justify-center mb-2"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M13 2L4.5 13H11l-1 9 8.5-11H12z"/></svg></div>
           <p className="text-sm font-bold mb-1">Ready to compete?</p>
           <p className="text-xs text-white/70 mb-4">Create a room, pick your team, score live.</p>
           <Link

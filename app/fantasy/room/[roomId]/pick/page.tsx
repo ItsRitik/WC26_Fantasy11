@@ -388,7 +388,9 @@ export default function PickPage({ params }: { params: { roomId: string } }) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center px-4">
         <div className="text-center max-w-sm">
-          <div className="text-4xl mb-3">🚫</div>
+          <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>
+          </div>
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{roomError}</p>
           <Link href={`/fantasy/room/${roomId}`} className="text-sm text-pulse-600 font-semibold">← Back to room</Link>
         </div>
@@ -593,7 +595,7 @@ export default function PickPage({ params }: { params: { roomId: string } }) {
         {/* Provisional-squad notice - confirmed XI not announced yet */}
         {lineupSource === 'squad' && (
           <div className="flex items-start gap-2.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/40 rounded-xl px-3 py-2.5">
-            <span className="text-sm flex-shrink-0">ℹ️</span>
+            <span className="flex-shrink-0 text-blue-500 mt-0.5"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></span>
             <p className="text-[11px] text-blue-700 dark:text-blue-300 leading-relaxed">
               Showing full squads - the confirmed starting XI isn&apos;t out yet (usually ~1 h before kickoff).
               Players who don&apos;t feature in the match score 0 points.
@@ -668,7 +670,7 @@ export default function PickPage({ params }: { params: { roomId: string } }) {
           </button>
           {squadError && picks.length > 0 && (
             <p className="text-[11px] text-center text-red-500 dark:text-red-400 font-medium mt-2">
-              ⚠ {squadError}
+              {squadError}
             </p>
           )}
         </div>

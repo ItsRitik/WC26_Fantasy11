@@ -19,6 +19,7 @@ import { teamTla } from '@/lib/api/tla'
 import { format } from 'date-fns'
 import clsx from 'clsx'
 import { WorldCupHero } from '@/components/home/WorldCupHero'
+import { MegaContest } from '@/components/home/MegaContest'
 
 const fetcher = async (url: string) => {
   const res = await fetch(url)
@@ -139,20 +140,20 @@ function FeaturedMatch({ match }: { match: AFWCFixture }) {
         )}
 
         {/* CTAs */}
-        <div className="mt-6 flex items-center justify-center gap-3">
+        <div className="mt-6 flex flex-nowrap items-center justify-center gap-2 sm:gap-3">
           <Link
             href={`/fixtures/${match.fixture.id}`}
-            className="h-10 px-5 flex items-center gap-2 rounded-xl bg-white text-gray-900 text-sm font-semibold hover:bg-gray-100 transition-colors"
+            className="h-10 px-3 sm:px-5 flex items-center gap-1.5 rounded-xl bg-white text-gray-900 text-xs sm:text-sm font-semibold hover:bg-gray-100 transition-colors whitespace-nowrap"
           >
             Match centre
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </Link>
           <Link
             href={!isLive && !isDone ? `/fantasy/room/create?match=${match.fixture.id}` : '/fantasy'}
-            className="h-10 px-5 flex items-center gap-2 rounded-xl bg-pulse-500/90 text-white text-sm font-semibold hover:bg-pulse-500 transition-colors"
+            className="h-10 px-3 sm:px-5 flex items-center gap-1.5 rounded-xl bg-pulse-500/90 text-white text-xs sm:text-sm font-semibold hover:bg-pulse-500 transition-colors whitespace-nowrap"
           >
             {!isLive && !isDone ? 'Create a contest' : 'Play Fantasy'}
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </Link>
         </div>
       </div>
@@ -435,6 +436,11 @@ export default function HomePage() {
         {/* ── Animated WC26 hero ── */}
         <div className="mb-6">
           <WorldCupHero />
+        </div>
+
+        {/* ── Grand final mega contest (shows when configured) ── */}
+        <div className="mb-6">
+          <MegaContest />
         </div>
 
         {/* ── Featured match ── */}

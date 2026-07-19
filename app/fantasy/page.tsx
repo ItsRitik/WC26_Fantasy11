@@ -11,6 +11,7 @@ import { format, isToday, isTomorrow } from 'date-fns'
 import type { FantasyRoom } from '@/lib/supabase/types'
 import { teamTla } from '@/lib/api/tla'
 import { LiveTopPoints } from '@/components/shared/LiveTopPoints'
+import { MegaContest } from '@/components/home/MegaContest'
 import { localDateKey, todayKey } from '@/lib/time'
 import type { AFWCFixture } from '@/lib/api/apifootball'
 
@@ -18,8 +19,8 @@ import type { AFWCFixture } from '@/lib/api/apifootball'
 function roomStatusCfg(status: FantasyRoom['status']) {
   return {
     waiting:   { label: 'Waiting',    cls: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' },
-    locked:    { label: 'Locked 🔒',  cls: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300' },
-    live:      { label: '🔴 Live',    cls: 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400' },
+    locked:    { label: 'Locked',  cls: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300' },
+    live:      { label: 'Live',    cls: 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400' },
     finished:  { label: 'Finished',   cls: 'bg-gray-100 dark:bg-gray-800 text-gray-500' },
     cancelled: { label: 'Cancelled',  cls: 'bg-gray-100 dark:bg-gray-800 text-gray-400' },
   }[status]
@@ -99,7 +100,7 @@ function MyRoomCard({
   } else if (room.status === 'locked') hint = 'Picks locked · match starting soon'
   else if (room.status === 'live')     hint = 'Leaderboard is live →'
   else if (room.status === 'finished') {
-    hint = room.winner_id === userId ? '🏆 You won!' : 'See final standings →'
+    hint = room.winner_id === userId ? 'You won' : 'See final standings →'
   }
 
   return (
@@ -124,7 +125,7 @@ function MyRoomCard({
               {matchLabel}
             </p>
             <p className="text-[11px] text-gray-400 mt-0.5">
-              {isHost ? '👑 Host' : '👤 Joined'} · {new Date(room.kickoff_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+              {isHost ? 'Host' : 'Joined'} · {new Date(room.kickoff_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
             </p>
           </div>
           <span className={clsx('text-[10px] font-bold px-2 py-1 rounded-full flex-shrink-0', cfg.cls)}>
@@ -136,7 +137,7 @@ function MyRoomCard({
         <div className="flex items-center gap-2 mb-3">
           <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Your team</span>
           <span className={clsx('text-xs font-medium', myDone ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400')}>
-            {myDone ? 'Ready ✓' : myPicks > 0 ? `${myPicks}/11 picked` : 'Not built yet'}
+            {myDone ? 'Ready' : myPicks > 0 ? `${myPicks}/11 picked` : 'Not built yet'}
           </span>
         </div>
 
@@ -171,8 +172,8 @@ function InlineRoomRow({ room, userId }: { room: FantasyRoom; userId: string }) 
   const guestIn    = !!room.guest_id
   const statusCfg  = {
     waiting:   { dot: 'bg-amber-400', text: 'Waiting' },
-    locked:    { dot: 'bg-orange-400', text: 'Locked 🔒' },
-    live:      { dot: 'bg-red-500 live-dot', text: '🔴 Live' },
+    locked:    { dot: 'bg-orange-400', text: 'Locked' },
+    live:      { dot: 'bg-red-500 live-dot', text: 'Live' },
     finished:  { dot: 'bg-gray-400', text: 'Finished' },
     cancelled: { dot: 'bg-gray-300', text: 'Cancelled' },
   }[room.status]
@@ -183,7 +184,9 @@ function InlineRoomRow({ room, userId }: { room: FantasyRoom; userId: string }) 
       className="flex items-center gap-2.5 bg-gray-50 dark:bg-gray-800 hover:bg-pulse-50 dark:hover:bg-pulse-900/20 rounded-xl px-3 py-2.5 transition-colors group"
     >
       {/* Role badge */}
-      <span className="text-base flex-shrink-0">{isHost ? '👑' : '👤'}</span>
+      <span className="flex-shrink-0 text-gray-400 dark:text-gray-500">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
+      </span>
 
       {/* Info */}
       <div className="flex-1 min-w-0">
@@ -485,6 +488,9 @@ function AuthenticatedLobby({ userId }: { userId: string }) {
         </div>
       </div>
 
+      {/* Grand final mega contest (shows when configured) */}
+      <div className="mb-5"><MegaContest /></div>
+
       {/* Tabs */}
       <div className="flex gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-xl mb-5">
         {([
@@ -530,7 +536,9 @@ function AuthenticatedLobby({ userId }: { userId: string }) {
             </div>
           ) : myRooms.length === 0 ? (
             <div className="text-center py-14">
-              <div className="text-4xl mb-3">🏟</div>
+              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 5v14M3 12h18"/><circle cx="12" cy="12" r="2.5"/></svg>
+              </div>
               <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">No rooms yet</h3>
               <p className="text-xs text-gray-400 mb-4">Create a contest from a match, or join one with a code above.</p>
               <button
@@ -560,7 +568,7 @@ function AuthenticatedLobby({ userId }: { userId: string }) {
               ) : finishedRooms.length > 0 ? (
                 // Have completed rooms but nothing active - nudge to create
                 <div className="bg-pulse-50 dark:bg-pulse-900/20 rounded-2xl border border-pulse-100 dark:border-pulse-800/40 px-4 py-4 flex items-center gap-3">
-                  <span className="text-2xl">⚽</span>
+                  <span className="text-gray-400 flex-shrink-0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7.5l2.6 1.9-1 3.1h-3.2l-1-3.1z"/></svg></span>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold text-pulse-700 dark:text-pulse-300">No active rooms</p>
                     <p className="text-[11px] text-pulse-600/70 dark:text-pulse-400/70 mt-0.5">Start a new contest from today's matches</p>
@@ -644,7 +652,7 @@ function AuthenticatedLobby({ userId }: { userId: string }) {
           {/* ─ WC upcoming (real) ─ */}
           {wcMatches.filter(f => f.fixture.status.short === 'NS').length > 0 && (
             <section>
-              <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">⚽ WC 2026 · Upcoming</h2>
+              <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">WC 2026 · Upcoming</h2>
               <div className="space-y-3">
                 {wcMatches.filter(f => f.fixture.status.short === 'NS').map(f => (
                   <RealFixtureCard key={f.fixture.id} fixture={f} isFriendly={false} myRooms={myRooms} userId={userId} />
@@ -656,7 +664,7 @@ function AuthenticatedLobby({ userId }: { userId: string }) {
           {/* ─ Friendlies upcoming (real) ─ */}
           {friendlyMatches.filter(f => f.fixture.status.short === 'NS').length > 0 && (
             <section>
-              <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">🤝 Friendlies · Upcoming</h2>
+              <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Friendlies · Upcoming</h2>
               <div className="space-y-3">
                 {friendlyMatches.filter(f => f.fixture.status.short === 'NS').map(f => (
                   <RealFixtureCard key={f.fixture.id} fixture={f} isFriendly myRooms={myRooms} userId={userId} />
@@ -668,7 +676,9 @@ function AuthenticatedLobby({ userId }: { userId: string }) {
           {/* ─ Truly empty ─ */}
           {!realLoading && wcMatches.length === 0 && friendlyMatches.length === 0 && (
             <div className="text-center py-14">
-              <div className="text-4xl mb-3">📅</div>
+              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              </div>
               <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1">No matches today or tomorrow</h3>
               <p className="text-xs text-gray-400">Check back closer to the next match day.</p>
             </div>

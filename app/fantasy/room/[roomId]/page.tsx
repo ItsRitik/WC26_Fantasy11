@@ -164,13 +164,13 @@ function TeamSheetModal({
             </div>
           ) : !canSee ? (
             <div className="flex flex-col items-center justify-center py-20 bg-[#1a6b2e] text-center px-8">
-              <span className="text-4xl mb-3">🔒</span>
+              <span className="mb-3 text-white/80"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg></span>
               <p className="text-sm font-semibold text-white mb-1">Hidden until kick-off</p>
               <p className="text-xs text-white/60">Other teams are revealed once the match starts.</p>
             </div>
           ) : picks.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 bg-[#1a6b2e] text-center px-8">
-              <span className="text-4xl mb-3">⚽</span>
+              <span className="mb-3 text-white/70"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7.5l2.6 1.9-1 3.1h-3.2l-1-3.1z"/></svg></span>
               <p className="text-sm text-white/70">No team submitted.</p>
             </div>
           ) : (
@@ -291,7 +291,6 @@ function WinnerConfetti() {
   return <canvas ref={ref} className="absolute inset-0 w-full h-full pointer-events-none" aria-hidden />
 }
 
-const MEDAL = ['🥇', '🥈', '🥉']
 
 function StatusBadge({ status }: { status: FantasyRoom['status'] }) {
   const cfg = {
@@ -301,7 +300,7 @@ function StatusBadge({ status }: { status: FantasyRoom['status'] }) {
     finished:  'bg-gray-100 dark:bg-gray-800 text-gray-500',
     cancelled: 'bg-gray-100 dark:bg-gray-800 text-gray-400',
   }
-  return <span className={clsx('text-[10px] font-bold px-2 py-1 rounded-full uppercase', cfg[status])}>{status === 'live' ? '🔴 Live' : status}</span>
+  return <span className={clsx('text-[10px] font-bold px-2 py-1 rounded-full uppercase', cfg[status])}>{status === 'live' ? 'Live' : status}</span>
 }
 
 // Invite block - share link + room code
@@ -475,7 +474,9 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center px-4">
         <div className="text-center max-w-sm">
-          <div className="text-4xl mb-3">🔍</div>
+          <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          </div>
           <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Room not found</h2>
           <p className="text-sm text-gray-400 mb-4">This link may have expired.</p>
           <Link href="/fantasy" className="text-sm text-pulse-600 font-semibold">← Back to lobby</Link>
@@ -642,14 +643,14 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
               const showRank = isLive || isOver
               const viewable = canSee(m.user_id)
               const canRemove = isHost && open && !m.is_host   // host kicks others pre-kickoff
-              const medal = showRank && i < 3 ? MEDAL[i] : null
+              const isTop3 = showRank && i < 3
               return (
                 <div key={m.user_id}
                   className={clsx('relative flex items-center gap-3 transition-colors fade-in-up',
                     isMe ? 'bg-pulse-50/60 dark:bg-pulse-900/15' : 'hover:bg-gray-50 dark:hover:bg-gray-800/40')}
                   style={{ animationDelay: `${Math.min(i, 12) * 35}ms` }}>
                   {/* podium accent bar for top 3 */}
-                  {medal && <span className={clsx('absolute left-0 top-0 bottom-0 w-1',
+                  {isTop3 && <span className={clsx('absolute left-0 top-0 bottom-0 w-1',
                     i === 0 ? 'bg-amber-400' : i === 1 ? 'bg-gray-300' : 'bg-orange-400')} />}
                   <button
                     onClick={() => viewable && openTeam(m.user_id, isMe ? `${m.name} (you)` : m.name)}
@@ -657,13 +658,16 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
                     className={clsx('flex-1 min-w-0 flex items-center gap-3 pl-4 py-3 text-left', canRemove ? 'pr-1' : 'pr-4', !viewable && 'cursor-default')}
                   >
                     <span className="w-6 text-center flex-shrink-0">
-                      {medal
-                        ? <span className="text-lg pop-in inline-block">{medal}</span>
+                      {isTop3
+                        ? <span className={clsx('inline-flex items-center justify-center w-6 h-6 rounded-full text-[11px] font-black pop-in',
+                            i === 0 ? 'bg-amber-400 text-amber-900' : i === 1 ? 'bg-gray-300 text-gray-700' : 'bg-orange-400 text-orange-900')}>{i + 1}</span>
                         : <span className={clsx('text-sm font-bold tabular-nums', showRank ? 'text-gray-400 dark:text-gray-500' : 'text-gray-300 dark:text-gray-600')}>{showRank ? i + 1 : '·'}</span>}
                     </span>
-                    <div className={clsx('w-9 h-9 rounded-full flex items-center justify-center text-sm flex-shrink-0 ring-2',
+                    <div className={clsx('w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ring-2 text-gray-400 dark:text-gray-500',
                       isMe ? 'bg-pulse-100 dark:bg-pulse-900/40 ring-pulse-300 dark:ring-pulse-700' : 'bg-gray-100 dark:bg-gray-800 ring-transparent')}>
-                      {m.is_host ? '👑' : '👤'}
+                      {m.is_host
+                        ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 7l4 4 5-6 5 6 4-4v10a1 1 0 01-1 1H4a1 1 0 01-1-1z"/></svg>
+                        : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg>}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
@@ -672,7 +676,7 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
                       </div>
                       <div className="text-[10px] text-gray-400 truncate">
                         {m.is_host ? 'Host · ' : ''}
-                        {showRank ? (viewable ? 'Tap to view team' : '🔒 Revealed at kick-off') : (isMe ? 'Tap to view your team' : '🔒 Hidden until kick-off')}
+                        {showRank ? (viewable ? 'Tap to view team' : 'Revealed at kick-off') : (isMe ? 'Tap to view your team' : 'Hidden until kick-off')}
                       </div>
                     </div>
                     {showRank && (
@@ -700,7 +704,9 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
             })}
             {board.length === 0 && (
               <div className="py-12 text-center px-6">
-                <div className="text-3xl mb-2 float-y">⚽</div>
+                <div className="w-11 h-11 mx-auto mb-2 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400 float-y">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7.5l2.6 1.9-1 3.1h-3.2l-1-3.1z"/></svg>
+                </div>
                 <p className="text-xs text-gray-400">
                   {isOver ? 'No one entered this contest.' : 'No teams entered yet - be the first to pick your XI.'}
                 </p>
@@ -715,7 +721,7 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
             <WinnerConfetti />
             <div className="absolute inset-0 shine-sweep pointer-events-none" />
             <div className="relative">
-              <div className="text-4xl mb-1 float-y inline-block">🏆</div>
+              <div className="mb-1 float-y inline-flex text-amber-900"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><path d="M6 4h12v3a6 6 0 01-12 0zM6 5H3v2a4 4 0 004 4M18 5h3v2a4 4 0 01-4 4M9 17h6M12 13v4M8 21h8"/></svg></div>
               <p className="text-[11px] font-bold text-amber-900/70 uppercase tracking-[0.2em]">Champion</p>
               <p className="text-xl font-black text-amber-950 mt-0.5">
                 {room.winner_id === user.id ? 'You won!' : (names[room.winner_id] ?? 'Manager')}

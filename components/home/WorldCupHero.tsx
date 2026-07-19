@@ -105,7 +105,8 @@ export function WorldCupHero() {
 
       <div className="relative px-6 sm:px-10 py-10 sm:py-14 text-center">
         <p className="inline-flex items-center gap-2 text-[10px] sm:text-[11px] font-semibold text-white/70 uppercase tracking-[0.25em]">
-          <span className="text-sm">🇺🇸 🇨🇦 🇲🇽</span>
+          <span>USA · Canada · Mexico</span>
+          <span className="text-white/40">|</span>
           <span>Jun 11 - Jul 19, 2026</span>
         </p>
 
