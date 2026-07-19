@@ -113,7 +113,7 @@ function FeaturedMatch({ match }: { match: AFWCFixture }) {
             ) : (
               <div>
                 <div className="text-4xl font-black text-white tabular-nums">{format(kickoff, 'HH:mm')}</div>
-                <div className="text-[11px] text-white/50 mt-1">{format(kickoff, 'EEE d MMM')} · your time</div>
+                <div className="text-[11px] text-white/50 mt-1">{format(kickoff, 'EEE d MMM')}</div>
               </div>
             )}
           </div>
@@ -438,17 +438,17 @@ export default function HomePage() {
           <WorldCupHero />
         </div>
 
-        {/* ── Grand final mega contest (shows when configured) ── */}
-        <div className="mb-6">
-          <MegaContest />
-        </div>
-
         {/* ── Featured match ── */}
         {isLoading && !featured ? (
           <div className="h-72 rounded-3xl bg-gray-100 dark:bg-gray-800 animate-pulse" />
         ) : featured ? (
           <FeaturedMatch match={featured} />
         ) : null}
+
+        {/* ── Grand final mega contest (shows when configured) ── */}
+        <div className="mt-6">
+          <MegaContest />
+        </div>
 
         {/* ── Today rail ── */}
         {rail.length > 0 && (
