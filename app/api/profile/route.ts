@@ -3,7 +3,7 @@
  * ═════════════
  * GET             → the signed-in user's profile (display_name …)
  * GET ?ids=a,b    → public display names for the given user ids
- *                   (used to show real names in 1v1 rooms)
+ *                   (used to show real names on the room leaderboard)
  * POST { display_name } → set a UNIQUE display name for the signed-in user
  *
  * Writes go through the service role so we control validation + uniqueness
@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
 
   // Public lookup: display names for specific user ids (room participants)
   if (ids) {
-    const idList = ids.split(',').map(s => s.trim()).filter(Boolean).slice(0, 10)
+    const idList = ids.split(',').map(s => s.trim()).filter(Boolean).slice(0, 100)
     const { data } = await adminClient()
       .from('user_profiles')
       .select('id, display_name, avatar_url')

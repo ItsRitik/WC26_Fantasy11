@@ -382,7 +382,7 @@ export default function RoomPage({ params }: { params: { roomId: string } }) {
     if (ids.length) {
       const res = await fetch(`/api/profile?ids=${ids.join(',')}`).then(r => r.json()).catch(() => null)
       const nameMap: Record<string, string> = {}
-      for (const id of ids) nameMap[id] = res?.names?.[id]?.display_name ?? 'Manager'
+      for (const id of ids) nameMap[id] = res?.names?.[id]?.display_name ?? `Manager ${id.slice(-4)}`
       setNames(nameMap)
     }
   }, [roomId])
