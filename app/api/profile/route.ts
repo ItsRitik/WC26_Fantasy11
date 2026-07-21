@@ -53,8 +53,9 @@ export async function GET(req: NextRequest) {
     .eq('id', uid)
     .maybeSingle()
 
-  // complete only when BOTH onboarding fields are set
-  const complete = !!(data?.display_name && data?.fav_team_tla)
+  // Onboarding is complete once a unique username is set (the user's identity).
+  // Favourite team is optional and no longer gates entry.
+  const complete = !!data?.display_name
   return NextResponse.json({ profile: data ?? null, complete })
 }
 

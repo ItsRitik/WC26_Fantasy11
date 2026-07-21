@@ -45,6 +45,13 @@ export async function POST(req: NextRequest, { params }: { params: { roomId: str
 
   const db = admin()
 
+  // ── Identity required: a manager must have a username before entering ─────
+  const { data: prof } = await db
+    .from('user_profiles').select('display_name').eq('id', uid).maybeSingle()
+  if (!prof?.display_name) {
+    return NextResponse.json({ error: 'Set your username before entering a contest.' }, { status: 403 })
+  }
+
   // ── Room must exist and still be open ─────────────────────────────────────
   const { data: room } = await db
     .from('fantasy_rooms').select('status, kickoff_at, host_id, max_players').eq('id', roomId).maybeSingle()
