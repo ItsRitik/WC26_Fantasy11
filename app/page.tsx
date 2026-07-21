@@ -20,6 +20,7 @@ import { format } from 'date-fns'
 import clsx from 'clsx'
 import { WorldCupHero } from '@/components/home/WorldCupHero'
 import { MegaContest } from '@/components/home/MegaContest'
+import { ChampionShowcase } from '@/components/home/ChampionShowcase'
 
 const fetcher = async (url: string) => {
   const res = await fetch(url)
@@ -432,6 +433,11 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <div className="max-w-screen-xl mx-auto px-4 py-6">
+
+        {/* ── Champions showcase (scroll celebration) ── */}
+        <div className="mb-6">
+          <ChampionShowcase />
+        </div>
 
         {/* ── Animated WC26 hero ── */}
         <div className="mb-6">
